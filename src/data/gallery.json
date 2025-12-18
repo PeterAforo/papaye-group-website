@@ -1,0 +1,85 @@
+{
+  "images": [
+    {
+      "id": "1",
+      "image": "/images/gallery/restaurant-interior-1.jpg",
+      "tag": "interior",
+      "title": "Modern Dining Area"
+    },
+    {
+      "id": "2",
+      "image": "/images/gallery/food-spread-1.jpg",
+      "tag": "food",
+      "title": "Signature Dishes"
+    },
+    {
+      "id": "3",
+      "image": "/images/gallery/chef-cooking.jpg",
+      "tag": "kitchen",
+      "title": "Our Expert Chefs"
+    },
+    {
+      "id": "4",
+      "image": "/images/gallery/jollof-rice-platter.jpg",
+      "tag": "food",
+      "title": "Famous Jollof Rice"
+    },
+    {
+      "id": "5",
+      "image": "/images/gallery/restaurant-exterior.jpg",
+      "tag": "exterior",
+      "title": "Papaye Osu Branch"
+    },
+    {
+      "id": "6",
+      "image": "/images/gallery/grilled-chicken-plate.jpg",
+      "tag": "food",
+      "title": "Grilled Chicken Special"
+    },
+    {
+      "id": "7",
+      "image": "/images/gallery/family-dining.jpg",
+      "tag": "customers",
+      "title": "Family Moments"
+    },
+    {
+      "id": "8",
+      "image": "/images/gallery/fresh-juices.jpg",
+      "tag": "drinks",
+      "title": "Fresh Tropical Juices"
+    },
+    {
+      "id": "9",
+      "image": "/images/gallery/burger-closeup.jpg",
+      "tag": "food",
+      "title": "Gourmet Burgers"
+    },
+    {
+      "id": "10",
+      "image": "/images/gallery/restaurant-night.jpg",
+      "tag": "exterior",
+      "title": "Evening Ambiance"
+    },
+    {
+      "id": "11",
+      "image": "/images/gallery/kitchen-team.jpg",
+      "tag": "kitchen",
+      "title": "Kitchen Excellence"
+    },
+    {
+      "id": "12",
+      "image": "/images/gallery/desserts.jpg",
+      "tag": "food",
+      "title": "Sweet Endings"
+    }
+  ],
+  "tags": [
+    { "id": "all", "name": "All" },
+    { "id": "food", "name": "Food" },
+    { "id": "interior", "name": "Interior" },
+    { "id": "exterior", "name": "Exterior" },
+    { "id": "kitchen", "name": "Kitchen" },
+    { "id": "customers", "name": "Customers" },
+    { "id": "drinks", "name": "Drinks" }
+  ]
+}

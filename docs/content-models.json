@@ -1,0 +1,21 @@
+{
+  "menuItem": {
+    "id": "string",
+    "title": "string",
+    "category": "string",
+    "price": "number",
+    "image": "string",
+    "description": "string"
+  },
+  "branch": {
+    "id": "string",
+    "name": "string",
+    "location": "string",
+    "mapUrl": "string"
+  },
+  "galleryItem": {
+    "id": "string",
+    "image": "string",
+    "tag": "string"
+  }
+}

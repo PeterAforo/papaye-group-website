@@ -1,0 +1,357 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== AUTH MODELS ====================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  phone         String?
+  role          String    @default("CUSTOMER") // CUSTOMER, ADMIN, STAFF, BRANCH_MANAGER
+  branchId      String?   // Branch assigned to manage (for BRANCH_MANAGER role)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  branch        Branch?   @relation(fields: [branchId], references: [id])
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  addresses     Address[]
+  reviews       Review[]
+  cart          Cart?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ==================== ADDRESS ====================
+
+model Address {
+  id        String   @id @default(cuid())
+  userId    String?  // Optional for guest checkout
+  name      String
+  phone     String
+  street    String
+  city      String
+  region    String
+  landmark  String?
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+}
+
+// ==================== MENU MODELS ====================
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  icon        String?
+  description String?
+  image       String?
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  menuItems MenuItem[]
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  price       Float
+  image       String?
+  categoryId  String
+  isPopular   Boolean  @default(false)
+  isAvailable Boolean  @default(true)
+  calories    Int?
+  prepTime    Int?     // in minutes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category   Category    @relation(fields: [categoryId], references: [id])
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  reviews    Review[]
+}
+
+// ==================== CART ====================
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+}
+
+model CartItem {
+  id         String   @id @default(cuid())
+  cartId     String
+  menuItemId String
+  quantity   Int      @default(1)
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  cart     Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@unique([cartId, menuItemId])
+}
+
+// ==================== ORDERS ====================
+
+model Order {
+  id            String      @id @default(cuid())
+  orderNumber   String      @unique
+  userId        String?     // Optional for guest checkout
+  addressId     String?
+  branchId      String?
+  subtotal      Float
+  deliveryFee   Float       @default(0)
+  discount      Float       @default(0)
+  total         Float
+  status        String      @default("PENDING") // PENDING, CONFIRMED, PREPARING, READY, OUT_FOR_DELIVERY, DELIVERED, CANCELLED
+  paymentMethod String?
+  paymentStatus String      @default("PENDING") // PENDING, PAID, FAILED, REFUNDED
+  notes         String?
+  deliveryType  String      @default("DELIVERY") // DELIVERY, PICKUP
+  estimatedTime Int?        // in minutes
+  guestEmail    String?     // For guest checkout
+  guestName     String?     // For guest checkout
+  guestPhone    String?     // For guest checkout
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  user    User?       @relation(fields: [userId], references: [id])
+  address Address?    @relation(fields: [addressId], references: [id])
+  branch  Branch?     @relation(fields: [branchId], references: [id])
+  items   OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  menuItemId String
+  name       String   // Store name at time of order
+  price      Float    // Store price at time of order
+  quantity   Int
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+// ==================== BRANCHES ====================
+
+model Branch {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  address     String
+  phone       String
+  email       String?
+  hours       String
+  mapUrl      String?
+  latitude    Float?
+  longitude   Float?
+  image       String?
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orders   Order[]
+  managers User[]
+}
+
+// ==================== REVIEWS ====================
+
+model Review {
+  id         String   @id @default(cuid())
+  userId     String
+  menuItemId String
+  rating     Int      // 1-5
+  comment    String?
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+}
+
+// ==================== NEWSLETTER ====================
+
+model Newsletter {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// ==================== CONTACT MESSAGES ====================
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ==================== SETTINGS ====================
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==================== ABOUT STORIES ====================
+
+model Story {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  imageUrl    String?
+  year        String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==================== TEAM MEMBERS ====================
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  bio         String?
+  imageUrl    String?
+  email       String?
+  phone       String?
+  facebook    String?
+  twitter     String?
+  linkedin    String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==================== GALLERY ====================
+
+model GalleryAlbum {
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  description String?
+  coverImage  String?
+  sortOrder   Int            @default(0)
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  
+  images      GalleryImage[]
+}
+
+model GalleryImage {
+  id          String       @id @default(cuid())
+  albumId     String
+  imageUrl    String
+  caption     String?
+  sortOrder   Int          @default(0)
+  createdAt   DateTime     @default(now())
+  
+  album       GalleryAlbum @relation(fields: [albumId], references: [id], onDelete: Cascade)
+}
+
+// ==================== SITE CONFIGURATION ====================
+
+model LogoConfiguration {
+  id              String   @id @default(cuid())
+  lightLogoPath   String?  // Path to logo for light backgrounds
+  darkLogoPath    String?  // Path to logo for dark backgrounds
+  updatedAt       DateTime @updatedAt
+}
+
+// ==================== HOMEPAGE SECTIONS ====================
+
+model HomepageSection {
+  id          String   @id @default(cuid())
+  section     String   @unique  // hero, features, popular, testimonials, cta, etc.
+  title       String?
+  subtitle    String?
+  content     String?
+  imageUrl    String?
+  buttonText  String?
+  buttonLink  String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  metadata    String?  // JSON string for additional data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

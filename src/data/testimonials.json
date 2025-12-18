@@ -1,0 +1,44 @@
+{
+  "testimonials": [
+    {
+      "id": "1",
+      "name": "Kwame Asante",
+      "role": "Food Blogger",
+      "image": "/images/testimonials/person-1.jpg",
+      "rating": 5,
+      "text": "Papaye has been my go-to spot for authentic Ghanaian fast food. The jollof rice is absolutely divine, and the fried chicken is always crispy and flavorful!"
+    },
+    {
+      "id": "2",
+      "name": "Ama Serwaa",
+      "role": "Regular Customer",
+      "image": "/images/testimonials/person-2.jpg",
+      "rating": 5,
+      "text": "I've been coming to Papaye since I was a child. The quality has remained consistent over the years. It's not just food, it's a taste of home."
+    },
+    {
+      "id": "3",
+      "name": "John Mensah",
+      "role": "Business Executive",
+      "image": "/images/testimonials/person-3.jpg",
+      "rating": 5,
+      "text": "Perfect for quick business lunches. The service is fast, the food is excellent, and the atmosphere is always welcoming. Highly recommended!"
+    },
+    {
+      "id": "4",
+      "name": "Efua Owusu",
+      "role": "University Student",
+      "image": "/images/testimonials/person-4.jpg",
+      "rating": 4,
+      "text": "Affordable prices for students and generous portions. The grilled tilapia with banku is my absolute favorite. Great value for money!"
+    },
+    {
+      "id": "5",
+      "name": "Michael Adjei",
+      "role": "Tourist from UK",
+      "image": "/images/testimonials/person-5.jpg",
+      "rating": 5,
+      "text": "Visited Ghana for the first time and Papaye was recommended by locals. Now I understand why - the food is incredible! A must-visit for anyone in Accra."
+    }
+  ]
+}

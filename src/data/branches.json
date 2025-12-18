@@ -1,0 +1,117 @@
+{
+  "branches": [
+    {
+      "id": "1",
+      "name": "Papaye Spintex (Head Office)",
+      "location": "Plot 53A, Spintex Road, Opp. Stanbic Bank, Accra",
+      "phone": "+233 302 810 992",
+      "hours": "7:00 AM - 11:00 PM",
+      "mapUrl": "https://maps.google.com/maps?q=5.6319,-0.1408&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "coordinates": { "lat": 5.6319, "lng": -0.1408 },
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Papaye+Fast+Food+Spintex",
+      "image": "/images/branches/spintex.jpg",
+      "featured": true
+    },
+    {
+      "id": "2",
+      "name": "Papaye Osu",
+      "location": "Oxford Street, Osu, Accra",
+      "phone": "+233 302 773 754",
+      "hours": "7:00 AM - 11:00 PM",
+      "mapUrl": "https://maps.google.com/maps?q=5.5598,-0.1828&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "coordinates": { "lat": 5.5598, "lng": -0.1828 },
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Papaye+Fast+Foods+Osu",
+      "image": "/images/branches/osu.jpg",
+      "featured": true
+    },
+    {
+      "id": "3",
+      "name": "Papaye Tesano",
+      "location": "Apenkwa, Tesano, Accra",
+      "phone": "+233 302 232 773",
+      "hours": "7:00 AM - 11:00 PM",
+      "mapUrl": "https://maps.google.com/maps?q=5.6066,-0.2356&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "coordinates": { "lat": 5.6066, "lng": -0.2356 },
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Papaye+Tesano",
+      "image": "/images/branches/tesano.jpg",
+      "featured": true
+    },
+    {
+      "id": "4",
+      "name": "Papaye Tema",
+      "location": "Community 2, Meridian Road, Tema",
+      "phone": "+233 303 219 819",
+      "hours": "7:00 AM - 10:00 PM",
+      "mapUrl": "https://maps.google.com/maps?q=5.6698,-0.0167&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "coordinates": { "lat": 5.6698, "lng": -0.0167 },
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Papaye+Tema",
+      "image": "/images/branches/tema.jpg"
+    },
+    {
+      "id": "5",
+      "name": "Papaye Lapaz",
+      "location": "Lapaz, Accra",
+      "phone": "+233 302 259 970",
+      "hours": "7:00 AM - 11:00 PM",
+      "mapUrl": "https://maps.google.com/maps?q=5.6050,-0.2456&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "coordinates": { "lat": 5.6050, "lng": -0.2456 },
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Papaye+Lapaz",
+      "image": "/images/branches/lapaz.jpg"
+    },
+    {
+      "id": "6",
+      "name": "Papaye Awudome",
+      "location": "North Kaneshie, Mother's Inn Roundabout, Awudome Estates",
+      "phone": "+233 302 267 703",
+      "hours": "7:00 AM - 11:00 PM",
+      "mapUrl": "https://maps.google.com/maps?q=5.5714,-0.2302&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "coordinates": { "lat": 5.5714, "lng": -0.2302 },
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Papaye+Awudome",
+      "image": "/images/branches/awudome.jpg"
+    },
+    {
+      "id": "7",
+      "name": "Papaye Haatso",
+      "location": "Haatso, Accra",
+      "phone": "+233 302 961 581",
+      "hours": "7:00 AM - 11:00 PM",
+      "mapUrl": "https://maps.google.com/maps?q=5.6672,-0.1871&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "coordinates": { "lat": 5.6672, "lng": -0.1871 },
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Papaye+Haatso",
+      "image": "/images/branches/haatso.jpg"
+    },
+    {
+      "id": "8",
+      "name": "Papaye Weija",
+      "location": "Adjacent to West Hills Mall, Weija-Bortianor",
+      "phone": "+233 303 944 646",
+      "hours": "7:00 AM - 11:00 PM",
+      "mapUrl": "https://maps.google.com/maps?q=5.5463,-0.3464&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "coordinates": { "lat": 5.5463, "lng": -0.3464 },
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Papaye+Weija",
+      "image": "/images/branches/weija.jpg"
+    },
+    {
+      "id": "9",
+      "name": "Papaye Frafraha",
+      "location": "Adenta-Dodowa Road, Frafraha",
+      "phone": "+233 342 295 406",
+      "hours": "7:00 AM - 11:00 PM",
+      "mapUrl": "https://maps.google.com/maps?q=5.7369,-0.1565&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "coordinates": { "lat": 5.7369, "lng": -0.1565 },
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Papaye+Frafraha",
+      "image": "/images/branches/frafraha.jpg"
+    },
+    {
+      "id": "10",
+      "name": "Papaye East Legon",
+      "location": "East Legon, Accra",
+      "phone": "+233 342 295 420",
+      "hours": "7:00 AM - 11:00 PM",
+      "mapUrl": "https://maps.google.com/maps?q=5.6350,-0.1456&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "coordinates": { "lat": 5.6350, "lng": -0.1456 },
+      "directionsUrl": "https://www.google.com/maps/dir/?api=1&destination=Papaye+East+Legon",
+      "image": "/images/branches/east-legon.jpg"
+    }
+  ]
+}

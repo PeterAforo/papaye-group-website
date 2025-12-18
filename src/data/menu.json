@@ -1,0 +1,185 @@
+{
+  "categories": [
+    { "id": "chicken", "name": "Chicken", "icon": "🍗" },
+    { "id": "fish", "name": "Fish", "icon": "🐟" },
+    { "id": "burgers", "name": "Burgers", "icon": "🍔" },
+    { "id": "extras", "name": "Extras", "icon": "🍟" },
+    { "id": "drinks", "name": "Drinks", "icon": "🥤" }
+  ],
+  "items": [
+    {
+      "id": "1",
+      "title": "Broasted Chicken Rice with Coleslaw",
+      "category": "chicken",
+      "price": 80.00,
+      "image": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=300&fit=crop",
+      "description": "Fried Chicken with Fried Rice, Pepper and Coleslaw",
+      "popular": true
+    },
+    {
+      "id": "2",
+      "title": "Broasted Chicken Chips with Coleslaw",
+      "category": "chicken",
+      "price": 80.00,
+      "image": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop",
+      "description": "Fried Chicken with Fried Potato, Ketchup and Coleslaw"
+    },
+    {
+      "id": "3",
+      "title": "Grilled Chicken Rice with Coleslaw",
+      "category": "chicken",
+      "price": 80.00,
+      "image": "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400&h=300&fit=crop",
+      "description": "Charcoal Grilled Chicken with Fried Rice, Pepper and Coleslaw",
+      "popular": true
+    },
+    {
+      "id": "4",
+      "title": "Grilled Chicken Chips with Coleslaw",
+      "category": "chicken",
+      "price": 80.00,
+      "image": "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=400&h=300&fit=crop",
+      "description": "Charcoal Grilled Chicken with Fried Rice, Pepper and Coleslaw"
+    },
+    {
+      "id": "5",
+      "title": "Broasted Chicken Rice without Coleslaw",
+      "category": "chicken",
+      "price": 77.00,
+      "image": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=300&fit=crop",
+      "description": "Fried Chicken with Fried Rice and Pepper"
+    },
+    {
+      "id": "6",
+      "title": "Grilled Chicken Chips without Coleslaw",
+      "category": "chicken",
+      "price": 77.00,
+      "image": "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400&h=300&fit=crop",
+      "description": "Charcoal Grilled Chicken with Fried Potato and Pepper"
+    },
+    {
+      "id": "7",
+      "title": "Mini Rice with Coleslaw",
+      "category": "chicken",
+      "price": 40.00,
+      "image": "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop",
+      "description": "1pc Fried Chicken with Fried Rice, Pepper and Coleslaw"
+    },
+    {
+      "id": "8",
+      "title": "Mini Chips with Coleslaw",
+      "category": "chicken",
+      "price": 77.00,
+      "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&h=300&fit=crop",
+      "description": "1pc Fried Chicken with Fried Potato, Pepper and Coleslaw"
+    },
+    {
+      "id": "9",
+      "title": "Full Chicken",
+      "category": "chicken",
+      "price": 135.00,
+      "image": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=300&fit=crop",
+      "description": "Full Roasted Chicken with pepper and vegetables",
+      "popular": true
+    },
+    {
+      "id": "10",
+      "title": "2pcs Extra Broasted Chicken",
+      "category": "extras",
+      "price": 41.00,
+      "image": "https://images.unsplash.com/photo-1608039755401-742074f0548d?w=400&h=300&fit=crop",
+      "description": "Two pieces of Fried Chicken"
+    },
+    {
+      "id": "11",
+      "title": "3pcs Extra Broasted Chicken",
+      "category": "extras",
+      "price": 50.00,
+      "image": "https://images.unsplash.com/photo-1608039755401-742074f0548d?w=400&h=300&fit=crop",
+      "description": "Three pieces of Fried Chicken and Pepper"
+    },
+    {
+      "id": "12",
+      "title": "Grilled Fish Rice with Coleslaw",
+      "category": "fish",
+      "price": 88.00,
+      "image": "https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=400&h=300&fit=crop",
+      "description": "Grilled Fish with Fried Rice, Pepper and Coleslaw",
+      "popular": true
+    },
+    {
+      "id": "13",
+      "title": "Grilled Fish Chips with Coleslaw",
+      "category": "fish",
+      "price": 88.00,
+      "image": "https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=400&h=300&fit=crop",
+      "description": "Grilled Fish with Fried Potato, Ketchup and Coleslaw"
+    },
+    {
+      "id": "14",
+      "title": "Fried Fish Rice with Coleslaw",
+      "category": "fish",
+      "price": 88.00,
+      "image": "https://images.unsplash.com/photo-1534766555764-ce878a5e3a2b?w=400&h=300&fit=crop",
+      "description": "Fried Fish with Fried Rice, Pepper and Coleslaw"
+    },
+    {
+      "id": "15",
+      "title": "Cheese Egg Burger",
+      "category": "burgers",
+      "price": 70.00,
+      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop",
+      "description": "Burger Bread with Cheese, Egg, burger meat, lettuce, onion and tomatoes",
+      "popular": true
+    },
+    {
+      "id": "16",
+      "title": "Egg Burger",
+      "category": "burgers",
+      "price": 70.00,
+      "image": "https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=400&h=300&fit=crop",
+      "description": "Burger Bread with Egg, burger meat, lettuce, onion and tomatoes"
+    },
+    {
+      "id": "17",
+      "title": "Cheese Burger",
+      "category": "burgers",
+      "price": 65.00,
+      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop",
+      "description": "Burger Bread with Cheese, burger meat, lettuce, onion and tomatoes"
+    },
+    {
+      "id": "18",
+      "title": "Beef Burger",
+      "category": "burgers",
+      "price": 65.00,
+      "image": "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop",
+      "description": "Burger Bread with burger meat, lettuce, onion and tomatoes"
+    },
+    {
+      "id": "19",
+      "title": "Fresh Juice",
+      "category": "drinks",
+      "price": 17.00,
+      "image": "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=300&fit=crop",
+      "description": "Fresh juice in three flavours: Orange, Pineapple and Tangerine",
+      "popular": true
+    },
+    {
+      "id": "20",
+      "title": "Coleslaw",
+      "category": "extras",
+      "price": 10.00,
+      "image": "https://images.unsplash.com/photo-1625938145744-e380515399bf?w=400&h=300&fit=crop",
+      "description": "Fresh creamy coleslaw made with cabbage and carrots"
+    },
+    {
+      "id": "21",
+      "title": "French Fries",
+      "category": "extras",
+      "price": 20.00,
+      "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&h=300&fit=crop",
+      "description": "Crispy golden french fries, perfectly salted"
+    }
+  ]
+}

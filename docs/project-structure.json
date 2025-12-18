@@ -1,0 +1,13 @@
+{
+  "folders": [
+    "src/app",
+    "src/components/ui",
+    "src/components/sections",
+    "src/components/layout",
+    "src/data",
+    "src/lib",
+    "public/images",
+    "public/lottie",
+    "docs"
+  ]
+}
