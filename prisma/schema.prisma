@@ -401,3 +401,143 @@ model TwoFactorToken {
   createdAt DateTime @default(now())
 }
 
+// ==================== PROMO CODES ====================
+
+model PromoCode {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  description     String?
+  discountType    String    // PERCENTAGE, FIXED, FREE_DELIVERY
+  discountValue   Float     // Percentage or fixed amount
+  minOrderAmount  Float?    // Minimum order to apply
+  maxDiscount     Float?    // Maximum discount cap for percentage
+  usageLimit      Int?      // Total usage limit
+  usageCount      Int       @default(0)
+  perUserLimit    Int?      // Usage limit per user
+  startDate       DateTime?
+  endDate         DateTime?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  usages          PromoCodeUsage[]
+}
+
+model PromoCodeUsage {
+  id          String   @id @default(cuid())
+  promoCodeId String
+  userId      String?
+  orderId     String?
+  discount    Float
+  createdAt   DateTime @default(now())
+
+  promoCode   PromoCode @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+}
+
+// ==================== LOYALTY PROGRAM ====================
+
+model LoyaltyPoints {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  points      Int      @default(0)
+  totalEarned Int      @default(0)
+  totalSpent  Int      @default(0)
+  tier        String   @default("BRONZE") // BRONZE, SILVER, GOLD, PLATINUM
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  transactions LoyaltyTransaction[]
+}
+
+model LoyaltyTransaction {
+  id              String   @id @default(cuid())
+  loyaltyPointsId String
+  type            String   // EARNED, REDEEMED, EXPIRED, BONUS
+  points          Int
+  description     String?
+  orderId         String?
+  createdAt       DateTime @default(now())
+
+  loyaltyPoints   LoyaltyPoints @relation(fields: [loyaltyPointsId], references: [id], onDelete: Cascade)
+}
+
+model LoyaltyReward {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  pointsCost      Int
+  rewardType      String   // DISCOUNT_PERCENT, DISCOUNT_FIXED, FREE_ITEM, FREE_DELIVERY
+  rewardValue     Float?
+  menuItemId      String?  // For FREE_ITEM rewards
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ==================== SCHEDULED CAMPAIGNS ====================
+
+model ScheduledCampaign {
+  id              String    @id @default(cuid())
+  name            String
+  type            String    // EMAIL, SMS, BOTH
+  subject         String?
+  message         String
+  targetAudience  String    // ALL, USERS, NEWSLETTER, CUSTOM
+  scheduledFor    DateTime
+  status          String    @default("SCHEDULED") // SCHEDULED, SENT, CANCELLED, FAILED
+  recipientCount  Int       @default(0)
+  sentCount       Int       @default(0)
+  failedCount     Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// ==================== ABANDONED CART ====================
+
+model AbandonedCart {
+  id              String    @id @default(cuid())
+  cartId          String
+  userId          String?
+  email           String?
+  phone           String?
+  cartValue       Float
+  itemCount       Int
+  reminderSent    Boolean   @default(false)
+  reminderSentAt  DateTime?
+  recovered       Boolean   @default(false)
+  recoveredAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// ==================== REFERRAL PROGRAM ====================
+
+model Referral {
+  id              String    @id @default(cuid())
+  referrerId      String    // User who referred
+  referredEmail   String    // Email of person referred
+  referredUserId  String?   // User ID once they sign up
+  referralCode    String    @unique
+  status          String    @default("PENDING") // PENDING, SIGNED_UP, COMPLETED, EXPIRED
+  rewardGiven     Boolean   @default(false)
+  rewardAmount    Float?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// ==================== ORDER REVIEWS ====================
+
+model OrderReview {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  userId      String?
+  rating      Int      // 1-5
+  foodRating  Int?     // 1-5
+  serviceRating Int?   // 1-5
+  deliveryRating Int?  // 1-5
+  comment     String?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

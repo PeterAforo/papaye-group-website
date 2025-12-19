@@ -20,6 +20,11 @@ import {
   Image,
   Building2,
   Megaphone,
+  Ticket,
+  Award,
+  BarChart3,
+  Gift,
+  Star,
 } from "lucide-react";
 
 const adminLinks = [
@@ -29,6 +34,10 @@ const adminLinks = [
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/branches", label: "Branches", icon: MapPin },
   { href: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
+  { href: "/admin/promo-codes", label: "Promo Codes", icon: Ticket },
+  { href: "/admin/loyalty", label: "Loyalty Program", icon: Award },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/admin/reviews", label: "Reviews", icon: Star },
   { href: "/admin/about", label: "About / Stories", icon: BookOpen },
   { href: "/admin/team", label: "Team", icon: Users },
   { href: "/admin/gallery", label: "Gallery", icon: Image },
