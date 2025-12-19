@@ -22,6 +22,13 @@ model User {
   phone         String?
   role          String    @default("CUSTOMER") // CUSTOMER, ADMIN, STAFF, BRANCH_MANAGER
   branchId      String?   // Branch assigned to manage (for BRANCH_MANAGER role)
+  isActive      Boolean   @default(false) // Account activation status
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret  String?
+  failedLoginAttempts Int  @default(0)
+  lockedUntil   DateTime?
+  lastLoginAt   DateTime?
+  lastLoginIp   String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -32,6 +39,7 @@ model User {
   addresses     Address[]
   reviews       Review[]
   cart          Cart?
+  loginHistory  LoginHistory[]
 }
 
 model Account {
@@ -353,5 +361,43 @@ model HomepageSection {
   metadata    String?  // JSON string for additional data
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ==================== SECURITY MODELS ====================
+
+model LoginHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  ipAddress String?
+  userAgent String?
+  success   Boolean
+  reason    String?  // Failed reason if not successful
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+}
+
+model TwoFactorToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
 }
 

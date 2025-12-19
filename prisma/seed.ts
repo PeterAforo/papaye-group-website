@@ -6,16 +6,18 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Seeding database...");
 
-  // Create admin user
+  // Create admin user (with isActive = true so they can login immediately)
   const hashedPassword = await bcrypt.hash("admin123", 12);
   const admin = await prisma.user.upsert({
     where: { email: "admin@papaye.com.gh" },
-    update: {},
+    update: { isActive: true, emailVerified: new Date() },
     create: {
       email: "admin@papaye.com.gh",
       name: "Admin User",
       password: hashedPassword,
       role: "ADMIN",
+      isActive: true,
+      emailVerified: new Date(),
     },
   });
   console.log("✅ Admin user created:", admin.email);
