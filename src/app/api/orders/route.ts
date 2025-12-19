@@ -145,6 +145,33 @@ export async function POST(request: NextRequest) {
       customerName = guestInfo.name;
       customerEmail = guestInfo.email;
       customerPhone = guestInfo.phone;
+
+      // Save guest customer to contacts database
+      if (customerEmail) {
+        try {
+          await prisma.customerContact.upsert({
+            where: { email: customerEmail },
+            update: {
+              name: customerName || undefined,
+              phone: customerPhone || undefined,
+              orderCount: { increment: 1 },
+              totalSpent: { increment: order.total },
+              lastOrderAt: new Date(),
+            },
+            create: {
+              email: customerEmail,
+              name: customerName || null,
+              phone: customerPhone || null,
+              source: "guest_order",
+              orderCount: 1,
+              totalSpent: order.total,
+              lastOrderAt: new Date(),
+            },
+          });
+        } catch (e) {
+          console.error("Failed to save guest contact:", e);
+        }
+      }
     } else if (session?.user) {
       const user = await prisma.user.findUnique({
         where: { id: (session.user as any).id },

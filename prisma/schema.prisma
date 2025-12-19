@@ -249,8 +249,25 @@ model Review {
 model Newsletter {
   id        String   @id @default(cuid())
   email     String   @unique
+  name      String?
   isActive  Boolean  @default(true)
+  source    String   @default("website") // website, checkout, import
   createdAt DateTime @default(now())
+}
+
+// ==================== CUSTOMER CONTACTS ====================
+
+model CustomerContact {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  source    String   @default("guest_order") // guest_order, newsletter, import
+  orderCount Int     @default(1)
+  totalSpent Float   @default(0)
+  lastOrderAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ==================== CONTACT MESSAGES ====================

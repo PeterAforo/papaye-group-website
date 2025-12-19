@@ -5,7 +5,7 @@ import prisma from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { sendSMS } from "@/lib/sms";
 
-// Get all campaigns
+// Get all campaigns data including menu items
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -20,29 +20,62 @@ export async function GET(request: NextRequest) {
 
     const newsletters = await prisma.newsletter.findMany({
       where: { isActive: true },
-      select: { email: true },
+      select: { email: true, name: true },
+    });
+
+    // Get guest contacts
+    const guestContacts = await prisma.customerContact.findMany({
+      select: { email: true, name: true, phone: true },
+    });
+
+    // Get menu items for email campaigns
+    const menuItems = await prisma.menuItem.findMany({
+      where: { isAvailable: true },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        image: true,
+        description: true,
+        category: { select: { name: true } },
+      },
+      orderBy: { isPopular: "desc" },
+      take: 50,
     });
 
     // Combine unique emails
     const allEmails = new Set([
       ...users.map(u => u.email),
       ...newsletters.map(n => n.email),
+      ...guestContacts.map(g => g.email),
     ]);
 
-    const allPhones = users.filter(u => u.phone).map(u => u.phone);
+    const allPhones = new Set([
+      ...users.filter(u => u.phone).map(u => u.phone!),
+      ...guestContacts.filter(g => g.phone).map(g => g.phone!),
+    ]);
 
     return NextResponse.json({
       stats: {
         totalUsers: users.length,
         totalNewsletterSubscribers: newsletters.length,
+        totalGuestContacts: guestContacts.length,
         totalUniqueEmails: allEmails.size,
-        totalPhoneNumbers: allPhones.length,
+        totalPhoneNumbers: allPhones.size,
       },
       users: users.map(u => ({
         id: u.id,
         email: u.email,
         phone: u.phone,
         name: u.name,
+      })),
+      menuItems: menuItems.map(m => ({
+        id: m.id,
+        name: m.name,
+        price: m.price,
+        image: m.image,
+        description: m.description,
+        category: m.category.name,
       })),
     });
   } catch (error) {
@@ -60,11 +93,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { type, subject, message, recipients, targetAudience } = body;
+    const { type, subject, message, htmlContent, recipients, targetAudience, selectedMenuItems } = body;
 
-    if (!type || !message) {
+    if (!type || (!message && !htmlContent)) {
       return NextResponse.json(
-        { error: "Type and message are required" },
+        { error: "Type and message/content are required" },
         { status: 400 }
       );
     }
@@ -82,9 +115,16 @@ export async function POST(request: NextRequest) {
     if (targetAudience === "all" || targetAudience === "newsletter") {
       const newsletters = await prisma.newsletter.findMany({
         where: { isActive: true },
-        select: { email: true },
+        select: { email: true, name: true },
       });
-      targetRecipients.push(...newsletters.map(n => ({ email: n.email, name: "Subscriber" })));
+      targetRecipients.push(...newsletters.map(n => ({ email: n.email, name: n.name || "Subscriber" })));
+    }
+
+    if (targetAudience === "all" || targetAudience === "guests") {
+      const guestContacts = await prisma.customerContact.findMany({
+        select: { email: true, phone: true, name: true },
+      });
+      targetRecipients.push(...guestContacts.map(g => ({ email: g.email, phone: g.phone || undefined, name: g.name || "Customer" })));
     }
 
     if (targetAudience === "custom" && recipients) {
@@ -115,13 +155,17 @@ export async function POST(request: NextRequest) {
     if (type === "email" || type === "both") {
       const emailPromises = Array.from(uniqueEmails.values()).map(async (recipient) => {
         try {
-          // Personalize message
-          const personalizedMessage = message.replace(/\{name\}/g, recipient.name || "Valued Customer");
-          
-          await sendEmail({
-            to: recipient.email,
-            subject: subject || "Message from Papaye",
-            html: `
+          // Personalize message/content
+          const personalizedName = recipient.name || "Valued Customer";
+          let emailHtml = "";
+
+          if (htmlContent) {
+            // Use custom HTML content
+            emailHtml = htmlContent.replace(/\{name\}/g, personalizedName);
+          } else {
+            // Use simple text message with wrapper
+            const personalizedMessage = message.replace(/\{name\}/g, personalizedName);
+            emailHtml = `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <div style="background: #E50000; padding: 20px; text-align: center;">
                   <h1 style="color: white; margin: 0;">Papaye</h1>
@@ -134,7 +178,13 @@ export async function POST(request: NextRequest) {
                   <p><a href="${process.env.NEXTAUTH_URL}/unsubscribe" style="color: #999;">Unsubscribe</a></p>
                 </div>
               </div>
-            `,
+            `;
+          }
+          
+          await sendEmail({
+            to: recipient.email,
+            subject: subject || "Message from Papaye",
+            html: emailHtml,
           });
           results.emailsSent++;
         } catch (e) {

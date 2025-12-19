@@ -18,20 +18,38 @@ import {
   BarChart3,
   Clock,
   Zap,
+  Code,
+  Eye,
+  Plus,
+  X,
+  UtensilsCrossed,
+  ShoppingBag,
 } from "lucide-react";
 
 interface CampaignStats {
   totalUsers: number;
   totalNewsletterSubscribers: number;
+  totalGuestContacts: number;
   totalUniqueEmails: number;
   totalPhoneNumbers: number;
 }
 
+interface MenuItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string | null;
+  description: string | null;
+  category: string;
+}
+
 type CampaignType = "email" | "sms" | "both";
-type TargetAudience = "all" | "users" | "newsletter" | "custom";
+type TargetAudience = "all" | "users" | "newsletter" | "guests";
+type EditorMode = "simple" | "html";
 
 export default function CampaignsPage() {
   const [stats, setStats] = useState<CampaignStats | null>(null);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -41,6 +59,11 @@ export default function CampaignsPage() {
   const [targetAudience, setTargetAudience] = useState<TargetAudience>("all");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [editorMode, setEditorMode] = useState<EditorMode>("simple");
+  const [htmlContent, setHtmlContent] = useState("");
+  const [selectedMenuItems, setSelectedMenuItems] = useState<string[]>([]);
+  const [showMenuPicker, setShowMenuPicker] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -51,6 +74,7 @@ export default function CampaignsPage() {
       const response = await fetch("/api/admin/campaigns");
       const data = await response.json();
       setStats(data.stats);
+      setMenuItems(data.menuItems || []);
     } catch (error) {
       console.error("Failed to fetch stats:", error);
     } finally {
@@ -58,8 +82,56 @@ export default function CampaignsPage() {
     }
   };
 
+  // Generate HTML email with menu items
+  const generateMenuHtml = (items: MenuItem[]) => {
+    return items.map(item => `
+      <div style="display: inline-block; width: 45%; margin: 10px 2%; vertical-align: top; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        ${item.image ? `<img src="${item.image}" alt="${item.name}" style="width: 100%; height: 150px; object-fit: cover;" />` : ''}
+        <div style="padding: 15px;">
+          <h3 style="margin: 0 0 5px 0; color: #333;">${item.name}</h3>
+          <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">${item.description || ''}</p>
+          <p style="margin: 0; color: #E50000; font-weight: bold; font-size: 18px;">GH₵ ${item.price.toFixed(2)}</p>
+        </div>
+      </div>
+    `).join('');
+  };
+
+  const generateFullHtml = () => {
+    const selectedItems = menuItems.filter(m => selectedMenuItems.includes(m.id));
+    const menuSection = selectedItems.length > 0 ? `
+      <div style="margin: 30px 0;">
+        <h2 style="text-align: center; color: #333; margin-bottom: 20px;">🍗 Featured Menu Items</h2>
+        <div style="text-align: center;">
+          ${generateMenuHtml(selectedItems)}
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://papayegroup.com'}/menu" style="background: #E50000; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">View Full Menu</a>
+        </div>
+      </div>
+    ` : '';
+
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9;">
+        <div style="background: #E50000; padding: 30px; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 32px;">Papaye</h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0;">Ghana's Favorite Fast Food</p>
+        </div>
+        <div style="padding: 30px;">
+          <p style="font-size: 16px; line-height: 1.6;">Hi {name},</p>
+          ${message.replace(/\n/g, "<br>")}
+          ${menuSection}
+        </div>
+        <div style="background: #333; color: white; padding: 20px; text-align: center; font-size: 12px;">
+          <p style="margin: 0 0 10px 0;">© ${new Date().getFullYear()} Papaye Restaurant. All rights reserved.</p>
+          <p style="margin: 0;"><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://papayegroup.com'}/unsubscribe" style="color: #999;">Unsubscribe</a></p>
+        </div>
+      </div>
+    `;
+  };
+
   const handleSendCampaign = async () => {
-    if (!message.trim()) {
+    const content = editorMode === "html" ? htmlContent : message;
+    if (!content.trim()) {
       setResult({ success: false, message: "Please enter a message" });
       return;
     }
@@ -73,14 +145,18 @@ export default function CampaignsPage() {
     setResult(null);
 
     try {
+      const finalHtml = editorMode === "html" ? htmlContent : generateFullHtml();
+      
       const response = await fetch("/api/admin/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: campaignType,
           subject,
-          message,
+          message: campaignType === "sms" || campaignType === "both" ? message : undefined,
+          htmlContent: campaignType === "email" || campaignType === "both" ? finalHtml : undefined,
           targetAudience,
+          selectedMenuItems,
         }),
       });
 
@@ -91,9 +167,10 @@ export default function CampaignsPage() {
       }
 
       setResult({ success: true, message: data.message });
-      // Clear form on success
       setSubject("");
       setMessage("");
+      setHtmlContent("");
+      setSelectedMenuItems([]);
     } catch (error) {
       setResult({
         success: false,
@@ -110,12 +187,20 @@ export default function CampaignsPage() {
       case "all":
         return campaignType === "sms" ? stats.totalPhoneNumbers : stats.totalUniqueEmails;
       case "users":
-        return campaignType === "sms" ? stats.totalPhoneNumbers : stats.totalUsers;
+        return stats.totalUsers;
       case "newsletter":
         return stats.totalNewsletterSubscribers;
+      case "guests":
+        return stats.totalGuestContacts || 0;
       default:
         return 0;
     }
+  };
+
+  const toggleMenuItem = (id: string) => {
+    setSelectedMenuItems(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
   };
 
   const campaignTypes = [
@@ -125,9 +210,10 @@ export default function CampaignsPage() {
   ];
 
   const audiences = [
-    { id: "all" as TargetAudience, label: "All Contacts", description: "Users + Newsletter subscribers" },
+    { id: "all" as TargetAudience, label: "All Contacts", description: "Users + Newsletter + Guests" },
     { id: "users" as TargetAudience, label: "Registered Users", description: "Only registered accounts" },
     { id: "newsletter" as TargetAudience, label: "Newsletter Subscribers", description: "Email subscribers only" },
+    { id: "guests" as TargetAudience, label: "Guest Customers", description: "Customers who ordered without signing up" },
   ];
 
   if (loading) {
@@ -313,10 +399,41 @@ export default function CampaignsPage() {
         <div className="lg:col-span-2">
           <Card className="h-full">
             <CardContent className="p-6">
-              <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                <Mail className="w-5 h-5 text-primary" />
-                Compose Message
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-primary" />
+                  Compose Message
+                </h3>
+                {(campaignType === "email" || campaignType === "both") && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setEditorMode("simple")}
+                      className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1 ${
+                        editorMode === "simple" ? "bg-primary text-white" : "bg-gray-100 hover:bg-gray-200"
+                      }`}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Simple
+                    </button>
+                    <button
+                      onClick={() => setEditorMode("html")}
+                      className={`px-3 py-1.5 rounded-lg text-sm flex items-center gap-1 ${
+                        editorMode === "html" ? "bg-primary text-white" : "bg-gray-100 hover:bg-gray-200"
+                      }`}
+                    >
+                      <Code className="w-4 h-4" />
+                      HTML
+                    </button>
+                    <button
+                      onClick={() => setShowPreview(!showPreview)}
+                      className="px-3 py-1.5 rounded-lg text-sm flex items-center gap-1 bg-gray-100 hover:bg-gray-200"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Preview
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Subject (for email) */}
               {(campaignType === "email" || campaignType === "both") && (
@@ -334,27 +451,145 @@ export default function CampaignsPage() {
                 </div>
               )}
 
-              {/* Message */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Message Content
-                </label>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder={`Hi {name},\n\nWe have an exciting offer for you!\n\n🍗 Get 20% off your next order with code PAPAYE20\n\nOrder now at papayegroup.com\n\nBest regards,\nThe Papaye Team`}
-                  rows={10}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                />
-                <p className="text-sm text-gray-500 mt-2">
-                  💡 Use <code className="bg-gray-100 px-1 rounded">{"{name}"}</code> to personalize with customer&apos;s name
-                </p>
-                {campaignType === "sms" && (
-                  <p className="text-sm text-orange-600 mt-1">
-                    ⚠️ SMS messages are limited to 160 characters. Current: {message.length}/160
+              {/* Message Editor */}
+              {editorMode === "simple" ? (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Message Content
+                  </label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder={`Hi {name},\n\nWe have an exciting offer for you!\n\n🍗 Get 20% off your next order with code PAPAYE20\n\nOrder now at papayegroup.com\n\nBest regards,\nThe Papaye Team`}
+                    rows={8}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                  />
+                  <p className="text-sm text-gray-500 mt-2">
+                    💡 Use <code className="bg-gray-100 px-1 rounded">{"{name}"}</code> to personalize with customer&apos;s name
                   </p>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    HTML Content
+                  </label>
+                  <textarea
+                    value={htmlContent}
+                    onChange={(e) => setHtmlContent(e.target.value)}
+                    placeholder={`<div style="font-family: Arial, sans-serif;">
+  <h1>Hello {name}!</h1>
+  <p>Your custom HTML email content here...</p>
+</div>`}
+                    rows={12}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-mono text-sm"
+                  />
+                </div>
+              )}
+
+              {/* SMS Message (when both selected) */}
+              {campaignType === "both" && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SMS Message (separate from email)
+                  </label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Short SMS message..."
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                  />
+                  <p className="text-sm text-orange-600 mt-1">
+                    ⚠️ SMS: {message.length}/160 characters
+                  </p>
+                </div>
+              )}
+
+              {campaignType === "sms" && (
+                <p className="text-sm text-orange-600 mb-4">
+                  ⚠️ SMS messages are limited to 160 characters. Current: {message.length}/160
+                </p>
+              )}
+
+              {/* Menu Items Picker (for email) */}
+              {(campaignType === "email" || campaignType === "both") && editorMode === "simple" && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <UtensilsCrossed className="w-4 h-4" />
+                      Add Menu Items to Email
+                    </label>
+                    <button
+                      onClick={() => setShowMenuPicker(!showMenuPicker)}
+                      className="text-sm text-primary hover:underline flex items-center gap-1"
+                    >
+                      {showMenuPicker ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                      {showMenuPicker ? "Close" : "Select Items"}
+                    </button>
+                  </div>
+
+                  {/* Selected Items */}
+                  {selectedMenuItems.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {selectedMenuItems.map(id => {
+                        const item = menuItems.find(m => m.id === id);
+                        return item ? (
+                          <span key={id} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                            {item.name}
+                            <button onClick={() => toggleMenuItem(id)} className="hover:text-red-500">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
+
+                  {/* Menu Picker Grid */}
+                  {showMenuPicker && (
+                    <div className="border rounded-xl p-4 max-h-64 overflow-y-auto bg-gray-50">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {menuItems.map(item => (
+                          <button
+                            key={item.id}
+                            onClick={() => toggleMenuItem(item.id)}
+                            className={`p-2 rounded-lg text-left text-sm border transition-all ${
+                              selectedMenuItems.includes(item.id)
+                                ? "border-primary bg-primary/10"
+                                : "border-gray-200 bg-white hover:border-gray-300"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {selectedMenuItems.includes(item.id) && (
+                                <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                              )}
+                              <div className="min-w-0">
+                                <p className="font-medium truncate">{item.name}</p>
+                                <p className="text-xs text-gray-500">GH₵{item.price.toFixed(2)}</p>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Email Preview */}
+              {showPreview && (campaignType === "email" || campaignType === "both") && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email Preview</label>
+                  <div className="border rounded-xl overflow-hidden bg-white">
+                    <div
+                      className="p-4"
+                      dangerouslySetInnerHTML={{
+                        __html: editorMode === "html" ? htmlContent : generateFullHtml().replace(/\{name\}/g, "John"),
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Result Message */}
               {result && (
@@ -379,7 +614,7 @@ export default function CampaignsPage() {
               {/* Send Button */}
               <Button
                 onClick={handleSendCampaign}
-                disabled={sending || !message.trim()}
+                disabled={sending || (editorMode === "simple" ? !message.trim() : !htmlContent.trim())}
                 className="w-full py-6 text-lg"
                 size="lg"
               >
@@ -400,7 +635,7 @@ export default function CampaignsPage() {
               <div className="mt-6 p-4 bg-blue-50 rounded-xl">
                 <h4 className="font-medium text-blue-800 mb-2">📌 Campaign Tips</h4>
                 <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• Keep SMS messages short and include a clear call-to-action</li>
+                  <li>• Add menu items to showcase your best dishes in emails</li>
                   <li>• Use emojis to make your messages more engaging 🎉</li>
                   <li>• Include promo codes for easy tracking</li>
                   <li>• Best times to send: 10am-12pm or 6pm-8pm</li>
