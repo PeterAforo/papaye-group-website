@@ -213,7 +213,7 @@ export function HeroBanner() {
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <VideoModal
-                videoUrl="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                videoUrl="https://www.youtube.com/embed/kBO9T7gwk4g"
                 buttonVariant="outline"
                 buttonSize="xl"
                 buttonClassName="border-white text-white hover:bg-white hover:text-primary"
