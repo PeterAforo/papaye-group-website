@@ -1,11 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Loader2, User, CheckCircle } from "lucide-react";
+import { X, Send, Loader2, User, CheckCircle, Volume2 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+// Inactivity timeout in milliseconds (2 minutes)
+const INACTIVITY_TIMEOUT = 2 * 60 * 1000;
+// Auto-open delay after page load (5 seconds)
+const AUTO_OPEN_DELAY = 5000;
 
 interface Message {
   id: string;
@@ -43,8 +48,54 @@ export function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Play notification sound using Web Audio API
+  const playNotificationSound = useCallback(() => {
+    if (!soundEnabled) return;
+    try {
+      const audioContext = new (window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 800;
+      oscillator.type = "sine";
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (e) {
+      console.log("Sound not available");
+    }
+  }, [soundEnabled]);
+
+  // Reset inactivity timer
+  const resetInactivityTimer = useCallback(() => {
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+    if (isOpen && messages.length > 1) {
+      inactivityTimerRef.current = setTimeout(() => {
+        const inactivityMessage: Message = {
+          id: `inactivity-${Date.now()}`,
+          role: "assistant",
+          content: "Hey! 👋 Are you still there? Let me know if you need any help with your order or have any questions about our menu!",
+        };
+        setMessages((prev) => [...prev, inactivityMessage]);
+        playNotificationSound();
+      }, INACTIVITY_TIMEOUT);
+    }
+  }, [isOpen, messages.length, playNotificationSound]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -59,6 +110,36 @@ export function Chatbot() {
       inputRef.current.focus();
     }
   }, [isOpen]);
+
+  // Auto-open chat after page loads
+  useEffect(() => {
+    if (hasAutoOpened) return;
+    
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+      setHasAutoOpened(true);
+      playNotificationSound();
+    }, AUTO_OPEN_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [hasAutoOpened, playNotificationSound]);
+
+  // Handle inactivity timer
+  useEffect(() => {
+    resetInactivityTimer();
+    return () => {
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
+    };
+  }, [messages, isOpen, resetInactivityTimer]);
+
+  // Reset timer on user input
+  useEffect(() => {
+    if (input) {
+      resetInactivityTimer();
+    }
+  }, [input, resetInactivityTimer]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,13 +238,26 @@ export function Chatbot() {
                   <p className="text-xs text-white/80">Always here to help</p>
                 </div>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/20 rounded-full transition-colors"
-                aria-label="Close chat"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setSoundEnabled(!soundEnabled)}
+                  className={cn(
+                    "p-2 rounded-full transition-colors",
+                    soundEnabled ? "hover:bg-white/20" : "bg-white/10 hover:bg-white/20"
+                  )}
+                  aria-label={soundEnabled ? "Mute sounds" : "Enable sounds"}
+                  title={soundEnabled ? "Mute sounds" : "Enable sounds"}
+                >
+                  <Volume2 className={cn("w-4 h-4", !soundEnabled && "opacity-50")} />
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                  aria-label="Close chat"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Messages */}
