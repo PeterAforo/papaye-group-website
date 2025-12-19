@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { sendEmail, emailTemplates } from "@/lib/email";
+import { sendSMS, smsTemplates } from "@/lib/sms";
 
 // Generate order number
 function generateOrderNumber(): string {
@@ -130,8 +132,119 @@ export async function POST(request: NextRequest) {
       data: orderData,
       include: {
         items: true,
+        address: true,
       },
     });
+
+    // Get customer info for notifications
+    let customerName = "";
+    let customerEmail = "";
+    let customerPhone = "";
+
+    if (isGuestCheckout) {
+      customerName = guestInfo.name;
+      customerEmail = guestInfo.email;
+      customerPhone = guestInfo.phone;
+    } else if (session?.user) {
+      const user = await prisma.user.findUnique({
+        where: { id: (session.user as any).id },
+        select: { name: true, email: true, phone: true },
+      });
+      customerName = user?.name || "Customer";
+      customerEmail = user?.email || "";
+      customerPhone = user?.phone || address?.phone || "";
+    }
+
+    // Build address string for notifications
+    const addressString = order.address 
+      ? `${order.address.street}, ${order.address.city}, ${order.address.region}${order.address.landmark ? ` (Near ${order.address.landmark})` : ''}`
+      : undefined;
+
+    // Send notifications (don't block order creation if notifications fail)
+    const sendNotifications = async () => {
+      const companyEmail = process.env.CONTACT_EMAIL || process.env.COMPANY_EMAIL;
+      const companyPhone = process.env.COMPANY_PHONE;
+
+      // 1. Send email to customer
+      if (customerEmail) {
+        try {
+          const customerTemplate = emailTemplates.orderConfirmation(
+            order.orderNumber,
+            customerName,
+            order.items,
+            order.total,
+            deliveryType,
+            addressString
+          );
+          await sendEmail({
+            to: customerEmail,
+            subject: customerTemplate.subject,
+            html: customerTemplate.html,
+          });
+          console.log("Customer email sent:", customerEmail);
+        } catch (e) {
+          console.error("Failed to send customer email:", e);
+        }
+      }
+
+      // 2. Send email to company
+      if (companyEmail) {
+        try {
+          const companyTemplate = emailTemplates.newOrderAlert(
+            order.orderNumber,
+            customerName,
+            customerPhone,
+            customerEmail,
+            order.items,
+            order.total,
+            deliveryType,
+            addressString
+          );
+          await sendEmail({
+            to: companyEmail,
+            subject: companyTemplate.subject,
+            html: companyTemplate.html,
+          });
+          console.log("Company email sent:", companyEmail);
+        } catch (e) {
+          console.error("Failed to send company email:", e);
+        }
+      }
+
+      // 3. Send SMS to customer
+      if (customerPhone) {
+        try {
+          await sendSMS({
+            to: customerPhone,
+            message: smsTemplates.orderConfirmationCustomer(order.orderNumber, order.total),
+          });
+          console.log("Customer SMS sent:", customerPhone);
+        } catch (e) {
+          console.error("Failed to send customer SMS:", e);
+        }
+      }
+
+      // 4. Send SMS to company
+      if (companyPhone) {
+        try {
+          await sendSMS({
+            to: companyPhone,
+            message: smsTemplates.orderConfirmationCompany(
+              order.orderNumber,
+              customerName,
+              order.total,
+              customerPhone
+            ),
+          });
+          console.log("Company SMS sent:", companyPhone);
+        } catch (e) {
+          console.error("Failed to send company SMS:", e);
+        }
+      }
+    };
+
+    // Run notifications in background (don't await)
+    sendNotifications().catch(console.error);
 
     return NextResponse.json({
       success: true,

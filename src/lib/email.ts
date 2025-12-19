@@ -166,7 +166,7 @@ export const emailTemplates = {
     `,
   }),
 
-  orderConfirmation: (orderNumber: string, items: any[], total: number) => ({
+  orderConfirmation: (orderNumber: string, customerName: string, items: any[], total: number, deliveryType: string, address?: string) => ({
     subject: `Order Confirmed - ${orderNumber}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -175,6 +175,7 @@ export const emailTemplates = {
         </div>
         <div style="padding: 30px; background: #f9f9f9;">
           <h2>Order Confirmed! 🎉</h2>
+          <p>Hi ${customerName},</p>
           <p>Your order <strong>${orderNumber}</strong> has been confirmed and is being prepared.</p>
           
           <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -191,7 +192,12 @@ export const emailTemplates = {
             </div>
           </div>
           
-          <p>We'll notify you when your order is ready!</p>
+          <div style="background: white; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0;"><strong>Order Type:</strong> ${deliveryType === 'DELIVERY' ? '🚗 Delivery' : '🏪 Pickup'}</p>
+            ${address ? `<p style="margin: 10px 0 0 0;"><strong>Delivery Address:</strong> ${address}</p>` : ''}
+          </div>
+          
+          <p>We'll notify you when your order is ready${deliveryType === 'DELIVERY' ? ' and on its way' : ' for pickup'}!</p>
           
           <div style="text-align: center; margin: 30px 0;">
             <a href="${process.env.NEXTAUTH_URL}/account/orders" style="background: #E50000; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px;">Track Order</a>
@@ -199,6 +205,51 @@ export const emailTemplates = {
         </div>
         <div style="background: #333; color: white; padding: 20px; text-align: center; font-size: 12px;">
           <p>© ${new Date().getFullYear()} Papaye Restaurant. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  }),
+
+  // Email notification to company/admin for new orders
+  newOrderAlert: (orderNumber: string, customerName: string, customerPhone: string, customerEmail: string, items: any[], total: number, deliveryType: string, address?: string) => ({
+    subject: `🔔 NEW ORDER - ${orderNumber}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #E50000; padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">New Order Alert!</h1>
+        </div>
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2>Order ${orderNumber}</h2>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0;">Customer Details</h3>
+            <p><strong>Name:</strong> ${customerName}</p>
+            <p><strong>Phone:</strong> <a href="tel:${customerPhone}">${customerPhone}</a></p>
+            <p><strong>Email:</strong> <a href="mailto:${customerEmail}">${customerEmail}</a></p>
+            <p><strong>Order Type:</strong> ${deliveryType === 'DELIVERY' ? '🚗 DELIVERY' : '🏪 PICKUP'}</p>
+            ${address ? `<p><strong>Delivery Address:</strong> ${address}</p>` : ''}
+          </div>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0;">Order Items</h3>
+            ${items.map((item) => `
+              <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
+                <span><strong>${item.quantity}x</strong> ${item.name}</span>
+                <span>GH₵ ${(item.price * item.quantity).toFixed(2)}</span>
+              </div>
+            `).join("")}
+            <div style="display: flex; justify-content: space-between; padding: 15px 0; font-weight: bold; font-size: 18px; background: #E50000; color: white; margin-top: 10px; padding: 15px; border-radius: 5px;">
+              <span>TOTAL</span>
+              <span>GH₵ ${total.toFixed(2)}</span>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXTAUTH_URL}/admin/orders" style="background: #E50000; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px;">View in Dashboard</a>
+          </div>
+        </div>
+        <div style="background: #333; color: white; padding: 20px; text-align: center; font-size: 12px;">
+          <p>Papaye Restaurant - Order Management System</p>
         </div>
       </div>
     `,
