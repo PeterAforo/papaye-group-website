@@ -19,6 +19,7 @@ import {
   BookOpen,
   Image,
   Building2,
+  Megaphone,
 } from "lucide-react";
 
 const adminLinks = [
@@ -27,6 +28,7 @@ const adminLinks = [
   { href: "/admin/menu", label: "Menu Items", icon: UtensilsCrossed },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/branches", label: "Branches", icon: MapPin },
+  { href: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
   { href: "/admin/about", label: "About / Stories", icon: BookOpen },
   { href: "/admin/team", label: "Team", icon: Users },
   { href: "/admin/gallery", label: "Gallery", icon: Image },
