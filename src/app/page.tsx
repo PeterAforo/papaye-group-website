@@ -4,7 +4,6 @@ import { WhyChooseUs } from "@/components/sections/why-choose-us";
 import { BranchesSection } from "@/components/sections/branches-section";
 import { TestimonialsSlider } from "@/components/sections/testimonials-slider";
 import { CTASection } from "@/components/sections/cta-section";
-import { NewsletterSection } from "@/components/sections/newsletter-section";
 
 export default function Home() {
   return (
@@ -15,7 +14,6 @@ export default function Home() {
       <BranchesSection />
       <TestimonialsSlider />
       <CTASection />
-      <NewsletterSection />
     </>
   );
 }
