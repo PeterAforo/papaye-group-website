@@ -203,7 +203,7 @@ export function Chatbot() {
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed bottom-6 right-6 z-50 w-32 h-32 rounded-full shadow-lg flex items-center justify-center overflow-hidden",
+          "fixed bottom-24 right-6 z-50 w-32 h-32 rounded-full shadow-lg flex items-center justify-center overflow-hidden",
           isOpen && "hidden"
         )}
         aria-label="Open chat"
