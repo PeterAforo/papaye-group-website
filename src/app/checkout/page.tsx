@@ -38,6 +38,8 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
+  const [onlineOrdersEnabled, setOnlineOrdersEnabled] = useState(true);
+  const [checkingOrders, setCheckingOrders] = useState(true);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -50,9 +52,26 @@ export default function CheckoutPage() {
     notes: "",
   });
 
-  // Handle hydration
+  // Handle hydration and check online orders status
   useEffect(() => {
     setMounted(true);
+    
+    // Check if online orders are enabled
+    const checkOnlineOrders = async () => {
+      try {
+        const response = await fetch("/api/settings/online-orders");
+        const data = await response.json();
+        setOnlineOrdersEnabled(data.enabled);
+      } catch (error) {
+        console.error("Failed to check online orders status:", error);
+        // Default to enabled if check fails
+        setOnlineOrdersEnabled(true);
+      } finally {
+        setCheckingOrders(false);
+      }
+    };
+    
+    checkOnlineOrders();
   }, []);
 
   // Auto-select mode if logged in
@@ -124,10 +143,43 @@ export default function CheckoutPage() {
   };
 
   // Show loading only during initial mount
-  if (!mounted) {
+  if (!mounted || checkingOrders) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Show message if online orders are disabled
+  if (!onlineOrdersEnabled) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-12">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Store className="w-10 h-10 text-orange-600" />
+            </div>
+            <h1 className="text-3xl font-bold font-heading mb-4">Online Orders Temporarily Unavailable</h1>
+            <p className="text-gray-600 mb-8">
+              We&apos;re not accepting online orders at the moment. Please visit us in-store or check back later.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/menu">
+                <Button variant="outline" className="gap-2">
+                  <ChevronLeft className="w-5 h-5" />
+                  Browse Menu
+                </Button>
+              </Link>
+              <Link href="/branches">
+                <Button className="gap-2">
+                  <MapPin className="w-5 h-5" />
+                  Find a Branch
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

@@ -17,7 +17,9 @@ import {
   Facebook,
   Instagram,
   Twitter,
+  ShoppingCart,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 interface SettingsData {
   // General
@@ -28,6 +30,7 @@ interface SettingsData {
   address: string;
   
   // Business
+  onlineOrdersEnabled: string;
   deliveryFee: string;
   freeDeliveryThreshold: string;
   minOrderAmount: string;
@@ -51,6 +54,7 @@ const defaultSettings: SettingsData = {
   contactEmail: "info@papaye.com.gh",
   contactPhone: "+233 30 123 4567",
   address: "Osu, Oxford Street, Accra, Ghana",
+  onlineOrdersEnabled: "true",
   deliveryFee: "10",
   freeDeliveryThreshold: "100",
   minOrderAmount: "20",
@@ -254,6 +258,29 @@ export default function AdminSettingsPage() {
           <Card>
             <CardContent className="p-6 space-y-6">
               <h2 className="text-xl font-bold font-heading">Business Settings</h2>
+              
+              {/* Online Orders Toggle */}
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                <div className="flex items-center gap-3">
+                  <ShoppingCart className="w-5 h-5 text-primary" />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900">
+                      Online Orders
+                    </label>
+                    <p className="text-xs text-gray-500">
+                      {settings.onlineOrdersEnabled === "true" 
+                        ? "Customers can place orders online" 
+                        : "Online ordering is currently disabled"}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={settings.onlineOrdersEnabled === "true"}
+                  onCheckedChange={(checked) => 
+                    setSettings({ ...settings, onlineOrdersEnabled: checked ? "true" : "false" })
+                  }
+                />
+              </div>
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div>

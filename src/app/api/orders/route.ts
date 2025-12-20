@@ -14,6 +14,18 @@ function generateOrderNumber(): string {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if online orders are enabled
+    const onlineOrdersSetting = await prisma.setting.findUnique({
+      where: { key: "onlineOrdersEnabled" },
+    });
+    
+    if (onlineOrdersSetting?.value === "false") {
+      return NextResponse.json(
+        { error: "Online orders are currently disabled. Please try again later or visit us in-store." },
+        { status: 503 }
+      );
+    }
+
     const session = await getServerSession(authOptions);
     const body = await request.json();
     const { items, deliveryType, paymentMethod, address, notes, isGuest, guestInfo } = body;
