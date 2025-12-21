@@ -85,7 +85,7 @@ export function SearchModal() {
       {/* Search Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 bg-transparent hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
       >
         <Search className="w-4 h-4" />
         <span className="hidden sm:inline">Search menu...</span>
