@@ -105,21 +105,27 @@ GUIDELINES:
 - ALWAYS collect name and phone before confirming
 - Calculate totals correctly`;
 
+// Disable caching for this API route
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function POST(request: NextRequest) {
   try {
     const { messages, orderContext } = await request.json();
 
-    // Check if online orders are enabled
+    // Check if online orders are enabled - fetch fresh from database
     const onlineOrdersSetting = await prisma.setting.findUnique({
       where: { key: "onlineOrdersEnabled" },
     });
     
     // Log the setting value for debugging
-    console.log("Online orders setting:", onlineOrdersSetting?.value, "Type:", typeof onlineOrdersSetting?.value);
+    console.log("Online orders setting value:", JSON.stringify(onlineOrdersSetting));
     
     // Check if ordering is enabled - must be explicitly "true" to be enabled
     // If setting doesn't exist or is "false", ordering is disabled
     const onlineOrdersEnabled = onlineOrdersSetting?.value === "true";
+    
+    console.log("Online orders enabled:", onlineOrdersEnabled);
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({
