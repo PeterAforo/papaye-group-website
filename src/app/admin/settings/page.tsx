@@ -260,25 +260,37 @@ export default function AdminSettingsPage() {
               <h2 className="text-xl font-bold font-heading">Business Settings</h2>
               
               {/* Online Orders Toggle */}
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+              <div className={`flex items-center justify-between p-4 rounded-lg border-2 ${
+                settings.onlineOrdersEnabled === "true" 
+                  ? "bg-green-50 border-green-500" 
+                  : "bg-red-50 border-red-500"
+              }`}>
                 <div className="flex items-center gap-3">
-                  <ShoppingCart className="w-5 h-5 text-primary" />
+                  <ShoppingCart className={`w-5 h-5 ${
+                    settings.onlineOrdersEnabled === "true" ? "text-green-600" : "text-red-600"
+                  }`} />
                   <div>
                     <label className="block text-sm font-medium text-gray-900">
                       Online Orders
                     </label>
-                    <p className="text-xs text-gray-500">
+                    <p className={`text-sm font-bold ${
+                      settings.onlineOrdersEnabled === "true" ? "text-green-600" : "text-red-600"
+                    }`}>
                       {settings.onlineOrdersEnabled === "true" 
-                        ? "Customers can place orders online" 
-                        : "Online ordering is currently disabled"}
+                        ? "✓ ENABLED - Customers can place orders online" 
+                        : "✗ DISABLED - Online ordering is turned OFF"}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Current value: {settings.onlineOrdersEnabled}
                     </p>
                   </div>
                 </div>
                 <Switch
                   checked={settings.onlineOrdersEnabled === "true"}
-                  onCheckedChange={(checked) => 
-                    setSettings({ ...settings, onlineOrdersEnabled: checked ? "true" : "false" })
-                  }
+                  onCheckedChange={(checked) => {
+                    console.log("Toggle changed to:", checked);
+                    setSettings({ ...settings, onlineOrdersEnabled: checked ? "true" : "false" });
+                  }}
                 />
               </div>
               
