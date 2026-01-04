@@ -117,6 +117,22 @@ export default function AdminLayout({
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('[data-dropdown]')) {
+        setShowProfileMenu(false);
+        setShowNotifications(false);
+      }
+    };
+
+    if (showProfileMenu || showNotifications) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showProfileMenu, showNotifications]);
+
   // Check if link is active
   const isActiveLink = (href: string) => {
     if (href === "/admin") {
@@ -209,7 +225,7 @@ export default function AdminLayout({
         {/* Right side - Notifications & Profile */}
         <div className="flex items-center gap-2">
           {/* Notifications */}
-          <div className="relative">
+          <div className="relative" data-dropdown>
             <button
               onClick={() => { setShowNotifications(!showNotifications); setShowProfileMenu(false); }}
               className="relative p-2 hover:bg-gray-100 rounded-lg"
@@ -261,7 +277,7 @@ export default function AdminLayout({
           </div>
 
           {/* Profile Dropdown */}
-          <div className="relative">
+          <div className="relative" data-dropdown>
             <button
               onClick={() => { setShowProfileMenu(!showProfileMenu); setShowNotifications(false); }}
               className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg"
@@ -438,13 +454,6 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Click outside to close dropdowns */}
-      {(showProfileMenu || showNotifications) && (
-        <div
-          className="fixed inset-0 z-20"
-          onClick={() => { setShowProfileMenu(false); setShowNotifications(false); }}
-        />
-      )}
     </div>
   );
 }
