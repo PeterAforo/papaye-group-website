@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
       where: { key: "onlineOrdersEnabled" },
     });
     
-    if (onlineOrdersSetting?.value === "false") {
+    // Ordering is only enabled if explicitly set to "true"
+    if (onlineOrdersSetting?.value !== "true") {
       return NextResponse.json(
         { error: "Online orders are currently disabled. Please try again later or visit us in-store." },
         { status: 503 }

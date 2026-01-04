@@ -113,7 +113,13 @@ export async function POST(request: NextRequest) {
     const onlineOrdersSetting = await prisma.setting.findUnique({
       where: { key: "onlineOrdersEnabled" },
     });
-    const onlineOrdersEnabled = onlineOrdersSetting?.value !== "false";
+    
+    // Log the setting value for debugging
+    console.log("Online orders setting:", onlineOrdersSetting?.value, "Type:", typeof onlineOrdersSetting?.value);
+    
+    // Check if ordering is enabled - must be explicitly "true" to be enabled
+    // If setting doesn't exist or is "false", ordering is disabled
+    const onlineOrdersEnabled = onlineOrdersSetting?.value === "true";
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({

@@ -7,13 +7,13 @@ export async function GET() {
       where: { key: "onlineOrdersEnabled" },
     });
 
-    // Default to true if setting doesn't exist
-    const enabled = setting?.value !== "false";
+    // Only enabled if explicitly set to "true"
+    const enabled = setting?.value === "true";
 
     return NextResponse.json({ enabled });
   } catch (error) {
     console.error("Get online orders setting error:", error);
-    // Default to enabled if there's an error
-    return NextResponse.json({ enabled: true });
+    // Default to disabled if there's an error (safer)
+    return NextResponse.json({ enabled: false });
   }
 }
