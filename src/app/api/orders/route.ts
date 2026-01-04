@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     const session = await getServerSession(authOptions);
     const body = await request.json();
-    const { items, deliveryType, paymentMethod, address, notes, isGuest, guestInfo } = body;
+    const { items, deliveryType, paymentMethod, branchId, address, notes, isGuest, guestInfo } = body;
 
     // For guest checkout, we don't require authentication
     const isGuestCheckout = isGuest && guestInfo;
@@ -114,6 +114,7 @@ export async function POST(request: NextRequest) {
     // Prepare order data
     const orderData: any = {
       orderNumber: generateOrderNumber(),
+      branchId: branchId || null,
       addressId,
       subtotal,
       deliveryFee,

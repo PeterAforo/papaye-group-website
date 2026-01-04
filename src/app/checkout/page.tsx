@@ -40,6 +40,8 @@ export default function CheckoutPage() {
   const [orderNumber, setOrderNumber] = useState("");
   const [onlineOrdersEnabled, setOnlineOrdersEnabled] = useState(true);
   const [checkingOrders, setCheckingOrders] = useState(true);
+  const [branches, setBranches] = useState<{id: string; name: string; address: string}[]>([]);
+  const [selectedBranchId, setSelectedBranchId] = useState<string>("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -71,7 +73,19 @@ export default function CheckoutPage() {
       }
     };
     
+    // Fetch branches for pickup selection
+    const fetchBranches = async () => {
+      try {
+        const response = await fetch("/api/branches");
+        const data = await response.json();
+        setBranches(data.filter((b: any) => b.isActive));
+      } catch (error) {
+        console.error("Failed to fetch branches:", error);
+      }
+    };
+    
     checkOnlineOrders();
+    fetchBranches();
   }, []);
 
   // Auto-select mode if logged in
@@ -113,6 +127,7 @@ export default function CheckoutPage() {
           })),
           deliveryType,
           paymentMethod,
+          branchId: deliveryType === "PICKUP" ? selectedBranchId : null,
           address: deliveryType === "DELIVERY" ? formData : null,
           notes: formData.notes,
           // Guest checkout info
@@ -416,6 +431,48 @@ export default function CheckoutPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Pickup Branch Selection */}
+              {deliveryType === "PICKUP" && (
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-xl font-bold font-heading mb-4 flex items-center gap-2">
+                      <Store className="w-5 h-5 text-primary" />
+                      Select Pickup Branch
+                    </h2>
+                    <div className="space-y-3">
+                      {branches.length === 0 ? (
+                        <p className="text-gray-500">Loading branches...</p>
+                      ) : (
+                        branches.map((branch) => (
+                          <label
+                            key={branch.id}
+                            className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                              selectedBranchId === branch.id
+                                ? "border-primary bg-primary/5"
+                                : "border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="branch"
+                              value={branch.id}
+                              checked={selectedBranchId === branch.id}
+                              onChange={(e) => setSelectedBranchId(e.target.value)}
+                              className="mt-1"
+                              required
+                            />
+                            <div>
+                              <p className="font-medium">{branch.name}</p>
+                              <p className="text-sm text-gray-500">{branch.address}</p>
+                            </div>
+                          </label>
+                        ))
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Delivery Address */}
               {deliveryType === "DELIVERY" && (

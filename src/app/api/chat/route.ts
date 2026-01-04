@@ -190,6 +190,25 @@ async function createOrder(orderData: any) {
   const customerName = orderData.name || orderData.customerName || orderData.customer_name || orderData.customer || null;
   const customerPhone = orderData.phone || orderData.customerPhone || orderData.customer_phone || orderData.telephone || orderData.tel || null;
 
+  // Get branch name from order data
+  const branchName = orderData.branch || orderData.branchId || orderData.branchName || null;
+  
+  // Look up branch ID from branch name if provided
+  let branchId = null;
+  if (branchName && orderData.deliveryType === 'PICKUP') {
+    const branch = await prisma.branch.findFirst({
+      where: {
+        name: {
+          contains: branchName,
+          mode: 'insensitive',
+        },
+        isActive: true,
+      },
+      select: { id: true },
+    });
+    branchId = branch?.id || null;
+  }
+
   // Build order items description for notes
   const itemsDescription = orderData.items
     .map((item: any) => `${item.quantity}x ${item.name} @ GHS ${item.price}`)
@@ -198,7 +217,7 @@ async function createOrder(orderData: any) {
   // Build comprehensive notes including customer info
   const noteParts = [
     `Items: ${itemsDescription}`,
-    orderData.deliveryType === 'DELIVERY' ? `Delivery to: ${orderData.address || orderData.deliveryAddress}` : `Pickup at: ${orderData.branch || orderData.branchId}`,
+    orderData.deliveryType === 'DELIVERY' ? `Delivery to: ${orderData.address || orderData.deliveryAddress}` : `Pickup at: ${branchName}`,
     customerName ? `Customer: ${customerName}` : null,
     customerPhone ? `Phone: ${customerPhone}` : null,
     orderData.notes ? `Notes: ${orderData.notes}` : null,
@@ -208,6 +227,7 @@ async function createOrder(orderData: any) {
   const order = await prisma.order.create({
     data: {
       orderNumber,
+      branchId,
       subtotal,
       deliveryFee,
       total,
@@ -222,7 +242,7 @@ async function createOrder(orderData: any) {
     },
   });
 
-  console.log("Order created:", order.orderNumber, "Customer:", customerName, "Phone:", customerPhone);
+  console.log("Order created:", order.orderNumber, "Customer:", customerName, "Phone:", customerPhone, "Branch:", branchId);
 
   return order;
 }
