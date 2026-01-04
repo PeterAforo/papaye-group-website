@@ -109,16 +109,28 @@ export async function POST(request: NextRequest) {
   try {
     const { messages, orderContext } = await request.json();
 
+    // Check if online orders are enabled
+    const onlineOrdersSetting = await prisma.setting.findUnique({
+      where: { key: "onlineOrdersEnabled" },
+    });
+    const onlineOrdersEnabled = onlineOrdersSetting?.value !== "false";
+
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({
-        message: getFallbackResponse(messages[messages.length - 1]?.content || ""),
+        message: getFallbackResponse(messages[messages.length - 1]?.content || "", onlineOrdersEnabled),
       });
+    }
+
+    // Build system prompt with ordering status
+    let systemPrompt = SYSTEM_PROMPT;
+    if (!onlineOrdersEnabled) {
+      systemPrompt += `\n\nIMPORTANT: Online ordering is currently DISABLED. If a customer wants to order, politely inform them that online ordering is temporarily unavailable and they should visit any of our branches or call +233 302 810 990 to place an order. Do NOT process any orders or output ORDER_CONFIRMED.`;
     }
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: systemPrompt },
         ...messages.slice(-15),
       ],
       max_tokens: 800,
@@ -128,10 +140,10 @@ export async function POST(request: NextRequest) {
     const responseMessage = completion.choices[0]?.message?.content || 
       "I apologize, but I couldn't process your request. Please try again.";
 
-    // Check if the response contains a confirmed order
+    // Check if the response contains a confirmed order (only process if ordering is enabled)
     const orderMatch = responseMessage.match(/```ORDER_CONFIRMED\n([\s\S]*?)\n```/);
     
-    if (orderMatch) {
+    if (orderMatch && onlineOrdersEnabled) {
       try {
         const orderData = JSON.parse(orderMatch[1]);
         
@@ -216,7 +228,7 @@ async function createOrder(orderData: any) {
 }
 
 // Fallback responses when OpenAI is not available
-function getFallbackResponse(userMessage: string): string {
+function getFallbackResponse(userMessage: string, onlineOrdersEnabled: boolean = true): string {
   const message = userMessage.toLowerCase();
 
   if (message.includes("menu") || message.includes("food") || message.includes("eat")) {
@@ -240,6 +252,9 @@ function getFallbackResponse(userMessage: string): string {
   }
 
   if (message.includes("order") || message.includes("delivery") || message.includes("takeaway")) {
+    if (!onlineOrdersEnabled) {
+      return "I'm sorry, but online ordering is temporarily unavailable. You can place orders by calling any of our branches directly or visiting in person. Our head office number is +233 302 810 990. We apologize for any inconvenience!";
+    }
     return "You can place orders by calling any of our branches directly or visiting in person. For the nearest branch, check our Branches page. Our head office number is +233 302 810 990.";
   }
 

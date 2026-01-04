@@ -44,6 +44,7 @@ export default function MenuPage() {
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
   const [menuData, setMenuData] = useState<MenuData>({ categories: [], items: [] });
   const [loading, setLoading] = useState(true);
+  const [onlineOrdersEnabled, setOnlineOrdersEnabled] = useState(true);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const { addItem, openCart } = useCartStore();
@@ -62,7 +63,21 @@ export default function MenuPage() {
         setLoading(false);
       }
     }
+    
+    async function checkOnlineOrders() {
+      try {
+        const res = await fetch("/api/settings/online-orders");
+        if (res.ok) {
+          const data = await res.json();
+          setOnlineOrdersEnabled(data.enabled);
+        }
+      } catch (error) {
+        console.error("Failed to check online orders:", error);
+      }
+    }
+    
     fetchMenu();
+    checkOnlineOrders();
   }, []);
 
   const handleAddToCart = (item: MenuItem) => {
@@ -184,24 +199,26 @@ export default function MenuPage() {
                         </div>
                       )}
 
-                      <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          size="sm"
-                          className={`rounded-full w-10 h-10 p-0 ${
-                            addedItems.has(item.id) ? "bg-green-500 hover:bg-green-600" : ""
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToCart(item);
-                          }}
-                        >
-                          {addedItems.has(item.id) ? (
-                            <Check className="w-5 h-5" />
-                          ) : (
-                            <Plus className="w-5 h-5" />
-                          )}
-                        </Button>
-                      </div>
+                      {onlineOrdersEnabled && (
+                        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            size="sm"
+                            className={`rounded-full w-10 h-10 p-0 ${
+                              addedItems.has(item.id) ? "bg-green-500 hover:bg-green-600" : ""
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddToCart(item);
+                            }}
+                          >
+                            {addedItems.has(item.id) ? (
+                              <Check className="w-5 h-5" />
+                            ) : (
+                              <Plus className="w-5 h-5" />
+                            )}
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
                     <CardContent className="p-4">
@@ -312,8 +329,11 @@ export default function MenuPage() {
                     onClick={() => {
                       handleAddToCart(selectedItem);
                     }}
+                    disabled={!onlineOrdersEnabled}
                   >
-                    {addedItems.has(selectedItem.id) ? (
+                    {!onlineOrdersEnabled ? (
+                      "Ordering Unavailable"
+                    ) : addedItems.has(selectedItem.id) ? (
                       <>
                         <Check className="w-5 h-5" />
                         Added!

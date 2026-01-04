@@ -29,6 +29,7 @@ export function MenuPreview() {
   const [popularItems, setPopularItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
+  const [onlineOrdersEnabled, setOnlineOrdersEnabled] = useState(true);
   const { addItem, openCart } = useCartStore();
 
   useEffect(() => {
@@ -46,7 +47,21 @@ export function MenuPreview() {
         setLoading(false);
       }
     }
+    
+    async function checkOnlineOrders() {
+      try {
+        const res = await fetch("/api/settings/online-orders");
+        if (res.ok) {
+          const data = await res.json();
+          setOnlineOrdersEnabled(data.enabled);
+        }
+      } catch (error) {
+        console.error("Failed to check online orders:", error);
+      }
+    }
+    
     fetchMenu();
+    checkOnlineOrders();
   }, []);
 
   const handleAddToCart = (e: React.MouseEvent, item: MenuItem) => {
@@ -115,15 +130,17 @@ export function MenuPreview() {
                   </div>
 
                   {/* Quick add button */}
-                  <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button 
-                      size="sm" 
-                      className={`rounded-full w-10 h-10 p-0 ${addedItems.has(item.id) ? 'bg-green-500 hover:bg-green-600' : ''}`}
-                      onClick={(e) => handleAddToCart(e, item)}
-                    >
-                      {addedItems.has(item.id) ? <Check className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                    </Button>
-                  </div>
+                  {onlineOrdersEnabled && (
+                    <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button 
+                        size="sm" 
+                        className={`rounded-full w-10 h-10 p-0 ${addedItems.has(item.id) ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                        onClick={(e) => handleAddToCart(e, item)}
+                      >
+                        {addedItems.has(item.id) ? <Check className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 
                 <CardContent className="p-4">

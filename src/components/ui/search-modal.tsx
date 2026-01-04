@@ -23,7 +23,24 @@ export function SearchModal() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [onlineOrdersEnabled, setOnlineOrdersEnabled] = useState(true);
   const { addItem } = useCartStore();
+
+  // Check online orders status
+  useEffect(() => {
+    async function checkOnlineOrders() {
+      try {
+        const res = await fetch("/api/settings/online-orders");
+        if (res.ok) {
+          const data = await res.json();
+          setOnlineOrdersEnabled(data.enabled);
+        }
+      } catch (error) {
+        console.error("Failed to check online orders:", error);
+      }
+    }
+    checkOnlineOrders();
+  }, []);
 
   // Search function
   const searchItems = useCallback((searchQuery: string) => {
@@ -162,15 +179,17 @@ export function SearchModal() {
                             GH₵ {item.price.toFixed(2)}
                           </p>
                         </div>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            handleAddToCart(item);
-                            setIsOpen(false);
-                          }}
-                        >
-                          Add
-                        </Button>
+                        {onlineOrdersEnabled && (
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              handleAddToCart(item);
+                              setIsOpen(false);
+                            }}
+                          >
+                            Add
+                          </Button>
+                        )}
                       </div>
                     ))}
                   </div>
