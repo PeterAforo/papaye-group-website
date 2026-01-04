@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
 import prisma from "@/lib/db";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Force dynamic by reading headers
+  const headersList = headers();
   try {
     // Get all settings for debugging
     const allSettings = await prisma.setting.findMany();
