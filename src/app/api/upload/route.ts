@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { existsSync } from "fs";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,33 +40,23 @@ export async function POST(request: NextRequest) {
 
     // Create unique filename
     const timestamp = Date.now();
-    const ext = path.extname(file.name);
+    const ext = file.name.split('.').pop() || 'jpg';
     const safeName = file.name
-      .replace(ext, "")
+      .replace(/\.[^/.]+$/, "")
       .replace(/[^a-zA-Z0-9]/g, "-")
       .toLowerCase()
       .slice(0, 50);
-    const filename = `${safeName}-${timestamp}${ext}`;
+    const filename = `${safeName}-${timestamp}`;
 
-    // Ensure upload directory exists
-    const uploadDir = path.join(process.cwd(), "public", "images", folder);
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // Write file
+    // Upload to Cloudinary
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const filepath = path.join(uploadDir, filename);
-    await writeFile(filepath, buffer);
-
-    // Return the public URL
-    const url = `/images/${folder}/${filename}`;
+    const url = await uploadToCloudinary(buffer, folder, filename);
 
     return NextResponse.json({ 
       success: true, 
       url,
-      filename,
+      filename: `${filename}.${ext}`,
     });
   } catch (error) {
     console.error("Upload error:", error);
