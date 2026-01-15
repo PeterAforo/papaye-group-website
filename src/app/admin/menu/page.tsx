@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,7 @@ export default function AdminMenuPage() {
   });
   const [imageInputMode, setImageInputMode] = useState<"url" | "upload">("url");
   const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchData();
@@ -139,6 +140,9 @@ export default function AdminMenuPage() {
       alert(error instanceof Error ? error.message : "Failed to upload image");
     } finally {
       setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -251,7 +255,7 @@ export default function AdminMenuPage() {
             <Card className="overflow-hidden">
               <div className="relative h-48">
                 <Image
-                  src={item.image || "/images/placeholder-food.jpg"}
+                  src={item.image || "/images/placeholder-food.svg"}
                   alt={item.name}
                   fill
                   className="object-cover"
@@ -439,8 +443,9 @@ export default function AdminMenuPage() {
                   <div className="space-y-2">
                     <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
                       <input
+                        ref={fileInputRef}
                         type="file"
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
                         onChange={handleImageUpload}
                         className="hidden"
                         disabled={uploading}
