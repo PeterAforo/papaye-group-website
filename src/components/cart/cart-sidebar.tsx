@@ -112,7 +112,7 @@ export function CartSidebar() {
                       {/* Image */}
                       <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
                         <Image
-                          src={item.image}
+                          src={item.image || "/images/placeholder-food.svg"}
                           alt={item.name}
                           fill
                           className="object-cover"

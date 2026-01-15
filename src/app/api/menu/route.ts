@@ -25,7 +25,7 @@ export async function GET() {
         title: item.name,
         category: item.category.slug,
         price: item.price,
-        image: item.image,
+        image: item.image || "/images/placeholder-food.svg",
         description: item.description,
         popular: item.isPopular,
       })),

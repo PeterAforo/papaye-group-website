@@ -186,7 +186,7 @@ export default function MenuPage() {
                   >
                     <div className="relative h-48 bg-gradient-to-br from-primary/10 to-secondary/10 overflow-hidden">
                       <Image
-                        src={item.image}
+                        src={item.image || "/images/placeholder-food.svg"}
                         alt={item.title}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-300"
@@ -274,7 +274,7 @@ export default function MenuPage() {
             <>
               <div className="relative h-64 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg overflow-hidden mb-4">
                 <Image
-                  src={selectedItem.image}
+                  src={selectedItem.image || "/images/placeholder-food.svg"}
                   alt={selectedItem.title}
                   fill
                   className="object-cover"

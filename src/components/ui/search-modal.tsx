@@ -164,7 +164,7 @@ export function SearchModal() {
                       >
                         <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                           <Image
-                            src={item.image}
+                            src={item.image || "/images/placeholder-food.svg"}
                             alt={item.title}
                             fill
                             className="object-cover"

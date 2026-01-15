@@ -117,7 +117,7 @@ export function MenuPreview() {
               >
                 <div className="relative h-48 bg-gradient-to-br from-primary/10 to-secondary/10 overflow-hidden">
                   <Image
-                    src={item.image}
+                    src={item.image || "/images/placeholder-food.svg"}
                     alt={item.title}
                     fill
                     className="object-cover group-hover:scale-110 transition-transform duration-300"
