@@ -9,9 +9,19 @@ import { VideoModal } from "@/components/ui/video-modal";
 import { fadeInUp, fadeInLeft, fadeInRight, floatAnimation } from "@/lib/animations";
 import { ArrowRight } from "lucide-react";
 
-const heroProducts = [
+interface HeroProduct {
+  id: string;
+  name: string;
+  subtitle: string;
+  image: string;
+  price: number;
+  rating: number;
+  reviews: string;
+}
+
+const defaultProducts: HeroProduct[] = [
   {
-    id: 1,
+    id: "1",
     name: "Crispy Chicken",
     subtitle: "Our Signature Dish",
     image: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&h=500&fit=crop",
@@ -19,55 +29,48 @@ const heroProducts = [
     rating: 4.9,
     reviews: "2000+",
   },
-  {
-    id: 2,
-    name: "Jollof Rice",
-    subtitle: "Ghana's Famous Dish",
-    image: "https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=500&h=500&fit=crop",
-    price: 30,
-    rating: 4.8,
-    reviews: "1500+",
-  },
-  {
-    id: 3,
-    name: "Grilled Tilapia",
-    subtitle: "Fresh & Delicious",
-    image: "https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=500&h=500&fit=crop",
-    price: 65,
-    rating: 4.7,
-    reviews: "800+",
-  },
-  {
-    id: 4,
-    name: "Classic Burger",
-    subtitle: "Juicy & Tasty",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&h=500&fit=crop",
-    price: 40,
-    rating: 4.8,
-    reviews: "1200+",
-  },
-  {
-    id: 5,
-    name: "Sobolo",
-    subtitle: "Traditional Refreshment",
-    image: "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=500&h=500&fit=crop",
-    price: 12,
-    rating: 4.9,
-    reviews: "900+",
-  },
 ];
 
 export function HeroBanner() {
   const heroRef = useRef<HTMLDivElement>(null);
   const foodRef = useRef<HTMLDivElement>(null);
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
+  const [heroProducts, setHeroProducts] = useState<HeroProduct[]>(defaultProducts);
+
+  useEffect(() => {
+    async function fetchRandomMenuItems() {
+      try {
+        const res = await fetch("/api/menu");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.items && data.items.length > 0) {
+            // Shuffle and pick 5 random items
+            const shuffled = [...data.items].sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, 5).map((item: any) => ({
+              id: item.id,
+              name: item.title,
+              subtitle: item.description?.substring(0, 30) + (item.description?.length > 30 ? "..." : "") || "Delicious Dish",
+              image: item.image || "/images/placeholder-food.svg",
+              price: item.price,
+              rating: 4.8,
+              reviews: "500+",
+            }));
+            setHeroProducts(selected);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch menu for hero:", error);
+      }
+    }
+    fetchRandomMenuItems();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentProductIndex((prev) => (prev + 1) % heroProducts.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [heroProducts.length]);
 
   const currentProduct = heroProducts[currentProductIndex];
 
@@ -116,59 +119,63 @@ export function HeroBanner() {
         }} />
       </div>
 
-      {/* Floating Food Elements with Real Images */}
+      {/* Floating Food Elements with Menu Images */}
       <div ref={foodRef} className="absolute inset-0 pointer-events-none">
-        {/* Top Left - Chicken Drumstick */}
-        <div className="floating-food absolute top-16 left-8 w-28 h-28">
-          <div className="w-full h-full bg-secondary rounded-full flex items-center justify-center shadow-lg overflow-hidden">
-            <Image
-              src="https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=150&h=150&fit=crop"
-              alt="Fried Chicken"
-              width={100}
-              height={100}
-              className="object-cover rounded-full"
-            />
+        {heroProducts[0] && (
+          <div className="floating-food absolute top-16 left-8 w-28 h-28">
+            <div className="w-full h-full bg-secondary rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+              <Image
+                src={heroProducts[0].image}
+                alt={heroProducts[0].name}
+                width={100}
+                height={100}
+                className="object-cover rounded-full"
+              />
+            </div>
           </div>
-        </div>
+        )}
         
-        {/* Top Right - Burger Icon */}
-        <div className="floating-food absolute top-32 right-16 w-16 h-16">
-          <div className="w-full h-full bg-secondary rounded-full flex items-center justify-center shadow-lg">
-            <Image
-              src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&h=80&fit=crop"
-              alt="Burger"
-              width={50}
-              height={50}
-              className="object-cover rounded-full"
-            />
+        {heroProducts[1] && (
+          <div className="floating-food absolute top-32 right-16 w-16 h-16">
+            <div className="w-full h-full bg-secondary rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+              <Image
+                src={heroProducts[1].image}
+                alt={heroProducts[1].name}
+                width={50}
+                height={50}
+                className="object-cover rounded-full"
+              />
+            </div>
           </div>
-        </div>
+        )}
         
-        {/* Bottom Left - Drink */}
-        <div className="floating-food absolute bottom-32 left-12 w-14 h-14">
-          <div className="w-full h-full bg-secondary rounded-full flex items-center justify-center shadow-lg overflow-hidden">
-            <Image
-              src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=80&h=80&fit=crop"
-              alt="Juice"
-              width={45}
-              height={45}
-              className="object-cover rounded-full"
-            />
+        {heroProducts[2] && (
+          <div className="floating-food absolute bottom-32 left-12 w-14 h-14">
+            <div className="w-full h-full bg-secondary rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+              <Image
+                src={heroProducts[2].image}
+                alt={heroProducts[2].name}
+                width={45}
+                height={45}
+                className="object-cover rounded-full"
+              />
+            </div>
           </div>
-        </div>
+        )}
         
-        {/* Bottom Right - Fries */}
-        <div className="floating-food absolute bottom-24 right-12 w-16 h-16">
-          <div className="w-full h-full bg-secondary rounded-full flex items-center justify-center shadow-lg overflow-hidden">
-            <Image
-              src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=80&h=80&fit=crop"
-              alt="Fries"
-              width={50}
-              height={50}
-              className="object-cover rounded-full"
-            />
+        {heroProducts[3] && (
+          <div className="floating-food absolute bottom-24 right-12 w-16 h-16">
+            <div className="w-full h-full bg-secondary rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+              <Image
+                src={heroProducts[3].image}
+                alt={heroProducts[3].name}
+                width={50}
+                height={50}
+                className="object-cover rounded-full"
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="container mx-auto px-4 py-20 relative z-10">
