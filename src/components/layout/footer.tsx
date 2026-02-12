@@ -16,6 +16,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useContactInfo } from "@/hooks/use-contact-info";
 
 const quickLinks = [
   { href: "/menu", label: "Our Menu" },
@@ -45,6 +46,10 @@ const floatingEmojis = ["🍗", "🍔", "🍟", "🥤", "🍖", "🌶️"];
 
 export function Footer() {
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const { contactInfo } = useContactInfo();
+  
+  // Format phone for tel: link
+  const phoneLink = contactInfo.phone.replace(/\s/g, '');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -263,7 +268,7 @@ export function Footer() {
                   <MapPin className="w-5 h-5 text-primary" />
                 </div>
                 <span className="text-gray-400 group-hover:text-gray-300 transition-colors">
-                  Head Office: Plot 53A, Spintex Road<br />Opp. Stanbic Bank, Accra
+                  {contactInfo.address}
                 </span>
               </motion.li>
               <motion.li 
@@ -273,8 +278,8 @@ export function Footer() {
                 <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-green-500/30 transition-colors">
                   <Phone className="w-5 h-5 text-green-400" />
                 </div>
-                <a href="tel:+233302810990" className="text-gray-400 hover:text-white transition-colors">
-                  +233 302 810 990
+                <a href={`tel:${phoneLink}`} className="text-gray-400 hover:text-white transition-colors">
+                  {contactInfo.phone}
                 </a>
               </motion.li>
               <motion.li 
@@ -284,8 +289,8 @@ export function Footer() {
                 <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/30 transition-colors">
                   <Mail className="w-5 h-5 text-blue-400" />
                 </div>
-                <a href="mailto:info@papayegroup.com" className="text-gray-400 hover:text-white transition-colors">
-                  info@papayegroup.com
+                <a href={`mailto:${contactInfo.email}`} className="text-gray-400 hover:text-white transition-colors">
+                  {contactInfo.email}
                 </a>
               </motion.li>
               <motion.li 
@@ -296,7 +301,7 @@ export function Footer() {
                   <Clock className="w-5 h-5 text-secondary" />
                 </div>
                 <span className="text-gray-400 group-hover:text-gray-300 transition-colors">
-                  7:00 AM - 11:00 PM
+                  {contactInfo.hours}
                 </span>
               </motion.li>
             </ul>

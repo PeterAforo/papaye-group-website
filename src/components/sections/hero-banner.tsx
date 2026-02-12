@@ -19,6 +19,36 @@ interface HeroProduct {
   reviews: string;
 }
 
+interface HeroContent {
+  badgeText: string;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  buttonLink: string;
+  videoUrl: string;
+  stat1Value: string;
+  stat1Label: string;
+  stat2Value: string;
+  stat2Label: string;
+  stat3Value: string;
+  stat3Label: string;
+}
+
+const defaultHeroContent: HeroContent = {
+  badgeText: "🔥 Ghana's #1 Fast Food Chain",
+  title: "Taste The|Authentic|Ghanaian Flavor",
+  subtitle: "From crispy fried chicken to the famous Jollof rice, experience the best of Ghanaian cuisine with a modern twist.",
+  buttonText: "Order Now",
+  buttonLink: "/menu",
+  videoUrl: "https://www.youtube.com/embed/kBO9T7gwk4g",
+  stat1Value: "33+",
+  stat1Label: "Years Experience",
+  stat2Value: "600+",
+  stat2Label: "Staff Members",
+  stat3Value: "10+",
+  stat3Label: "Locations",
+};
+
 const defaultProducts: HeroProduct[] = [
   {
     id: "1",
@@ -36,15 +66,42 @@ export function HeroBanner() {
   const foodRef = useRef<HTMLDivElement>(null);
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
   const [heroProducts, setHeroProducts] = useState<HeroProduct[]>(defaultProducts);
+  const [heroContent, setHeroContent] = useState<HeroContent>(defaultHeroContent);
 
   useEffect(() => {
+    async function fetchHeroContent() {
+      try {
+        const res = await fetch("/api/content/homepage");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.hero) {
+            setHeroContent({
+              badgeText: data.hero.badgeText || defaultHeroContent.badgeText,
+              title: data.hero.title || defaultHeroContent.title,
+              subtitle: data.hero.subtitle || defaultHeroContent.subtitle,
+              buttonText: data.hero.buttonText || defaultHeroContent.buttonText,
+              buttonLink: data.hero.buttonLink || defaultHeroContent.buttonLink,
+              videoUrl: data.hero.videoUrl || defaultHeroContent.videoUrl,
+              stat1Value: data.hero.stat1Value || defaultHeroContent.stat1Value,
+              stat1Label: data.hero.stat1Label || defaultHeroContent.stat1Label,
+              stat2Value: data.hero.stat2Value || defaultHeroContent.stat2Value,
+              stat2Label: data.hero.stat2Label || defaultHeroContent.stat2Label,
+              stat3Value: data.hero.stat3Value || defaultHeroContent.stat3Value,
+              stat3Label: data.hero.stat3Label || defaultHeroContent.stat3Label,
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch hero content:", error);
+      }
+    }
+
     async function fetchRandomMenuItems() {
       try {
         const res = await fetch("/api/menu");
         if (res.ok) {
           const data = await res.json();
           if (data.items && data.items.length > 0) {
-            // Shuffle and pick 5 random items
             const shuffled = [...data.items].sort(() => Math.random() - 0.5);
             const selected = shuffled.slice(0, 5).map((item: any) => ({
               id: item.id,
@@ -62,6 +119,8 @@ export function HeroBanner() {
         console.error("Failed to fetch menu for hero:", error);
       }
     }
+
+    fetchHeroContent();
     fetchRandomMenuItems();
   }, []);
 
@@ -191,36 +250,41 @@ export function HeroBanner() {
               variants={fadeInUp}
               className="inline-block bg-secondary text-dark px-4 py-2 rounded-full text-sm font-bold mb-6"
             >
-              🔥 Ghana&apos;s #1 Fast Food Chain
+              {heroContent.badgeText}
             </motion.span>
             
             <motion.h1
               variants={fadeInUp}
               className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold font-heading mb-6 leading-tight"
             >
-              Taste The
-              <span className="text-secondary block">Authentic</span>
-              Ghanaian Flavor
+              {heroContent.title.split('|').map((part, index) => (
+                index === 1 ? (
+                  <span key={index} className="text-secondary block">{part}</span>
+                ) : (
+                  <span key={index}>{part}{index === 0 ? ' ' : ''}</span>
+                )
+              ))}
             </motion.h1>
             
             <motion.p
               variants={fadeInUp}
               className="text-lg md:text-xl text-white/90 mb-8 max-w-xl mx-auto lg:mx-0"
             >
-              From crispy fried chicken to the famous Jollof rice, experience 
-              the best of Ghanaian cuisine with a modern twist.
+              {heroContent.subtitle}
             </motion.p>
             
             <motion.div
               variants={fadeInUp}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
-              <Button variant="secondary" size="xl" className="group">
-                Order Now
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <a href={heroContent.buttonLink}>
+                <Button variant="secondary" size="xl" className="group">
+                  {heroContent.buttonText}
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </a>
               <VideoModal
-                videoUrl="https://www.youtube.com/embed/kBO9T7gwk4g"
+                videoUrl={heroContent.videoUrl}
                 buttonVariant="outline"
                 buttonSize="xl"
                 buttonClassName="border-white text-white hover:bg-white hover:text-primary"
@@ -233,16 +297,16 @@ export function HeroBanner() {
               className="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-white/20"
             >
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-secondary">33+</div>
-                <div className="text-white/70 text-sm">Years Experience</div>
+                <div className="text-3xl md:text-4xl font-bold text-secondary">{heroContent.stat1Value}</div>
+                <div className="text-white/70 text-sm">{heroContent.stat1Label}</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-secondary">600+</div>
-                <div className="text-white/70 text-sm">Staff Members</div>
+                <div className="text-3xl md:text-4xl font-bold text-secondary">{heroContent.stat2Value}</div>
+                <div className="text-white/70 text-sm">{heroContent.stat2Label}</div>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-bold text-secondary">10+</div>
-                <div className="text-white/70 text-sm">Locations</div>
+                <div className="text-3xl md:text-4xl font-bold text-secondary">{heroContent.stat3Value}</div>
+                <div className="text-white/70 text-sm">{heroContent.stat3Label}</div>
               </div>
             </motion.div>
           </motion.div>

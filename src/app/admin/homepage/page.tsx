@@ -14,6 +14,7 @@ import {
   MessageSquare,
   Megaphone,
   Image as ImageIcon,
+  Phone,
 } from "lucide-react";
 
 interface HomepageSection {
@@ -32,14 +33,23 @@ interface HomepageSection {
 const defaultSections: Record<string, HomepageSection> = {
   hero: {
     section: "hero",
-    title: "Taste the Best of Ghana",
-    subtitle: "Experience authentic Ghanaian flavors with our signature fried chicken, jollof rice, and more. Fresh ingredients, bold spices, unforgettable taste.",
+    title: "Taste The|Authentic|Ghanaian Flavor",
+    subtitle: "From crispy fried chicken to the famous Jollof rice, experience the best of Ghanaian cuisine with a modern twist.",
     content: "",
     imageUrl: "/images/hero-chicken.png",
     buttonText: "Order Now",
     buttonLink: "/menu",
     isActive: true,
-    metadata: JSON.stringify({ videoUrl: "" }),
+    metadata: JSON.stringify({
+      badgeText: "🔥 Ghana's #1 Fast Food Chain",
+      videoUrl: "https://www.youtube.com/embed/kBO9T7gwk4g",
+      stat1Value: "33+",
+      stat1Label: "Years Experience",
+      stat2Value: "600+",
+      stat2Label: "Staff Members",
+      stat3Value: "10+",
+      stat3Label: "Locations",
+    }),
   },
   features: {
     section: "features",
@@ -118,10 +128,28 @@ const defaultSections: Record<string, HomepageSection> = {
     isActive: true,
     metadata: "",
   },
+  contact: {
+    section: "contact",
+    title: "Contact Information",
+    subtitle: "Company contact details displayed across the website",
+    content: "",
+    imageUrl: "",
+    buttonText: "",
+    buttonLink: "",
+    isActive: true,
+    metadata: JSON.stringify({
+      phone: "+233 302 810 990",
+      phone2: "",
+      email: "info@papayegroup.com",
+      address: "Head Office: Plot 53A, Spintex Road, Opp. Stanbic Bank, Accra",
+      hours: "7:00 AM - 11:00 PM",
+    }),
+  },
 };
 
 const sectionTabs = [
   { id: "hero", label: "Hero", icon: Home },
+  { id: "contact", label: "Contact Info", icon: Phone },
   { id: "features", label: "Features", icon: Star },
   { id: "popular", label: "Popular", icon: Star },
   { id: "about", label: "About", icon: Users },
@@ -356,6 +384,214 @@ export default function AdminHomepagePage() {
                 <p className="text-sm text-gray-500 mb-4">
                   Testimonials are pulled from customer reviews. Manage them in the Reviews section.
                 </p>
+              </div>
+            )}
+
+            {/* Hero Section - Extended Fields */}
+            {activeTab === "hero" && (
+              <div className="border-t pt-6 space-y-6">
+                <h3 className="font-medium mb-4">Hero Section Details</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  Title format: Use | to separate lines (e.g., "Taste The|Authentic|Ghanaian Flavor")
+                </p>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Badge Text
+                    </label>
+                    <input
+                      type="text"
+                      value={(() => {
+                        try {
+                          return JSON.parse(currentSection.metadata || "{}").badgeText || "";
+                        } catch { return ""; }
+                      })()}
+                      onChange={(e) => {
+                        const meta = JSON.parse(currentSection.metadata || "{}");
+                        meta.badgeText = e.target.value;
+                        updateSection(activeTab, { metadata: JSON.stringify(meta) });
+                      }}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="🔥 Ghana's #1 Fast Food Chain"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Video URL (YouTube Embed)
+                    </label>
+                    <input
+                      type="text"
+                      value={(() => {
+                        try {
+                          return JSON.parse(currentSection.metadata || "{}").videoUrl || "";
+                        } catch { return ""; }
+                      })()}
+                      onChange={(e) => {
+                        const meta = JSON.parse(currentSection.metadata || "{}");
+                        meta.videoUrl = e.target.value;
+                        updateSection(activeTab, { metadata: JSON.stringify(meta) });
+                      }}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="https://www.youtube.com/embed/..."
+                    />
+                  </div>
+                </div>
+
+                <h4 className="font-medium mt-6">Statistics</h4>
+                <div className="grid md:grid-cols-3 gap-4">
+                  {[1, 2, 3].map((num) => (
+                    <div key={num} className="space-y-2">
+                      <input
+                        type="text"
+                        value={(() => {
+                          try {
+                            return JSON.parse(currentSection.metadata || "{}")[`stat${num}Value`] || "";
+                          } catch { return ""; }
+                        })()}
+                        onChange={(e) => {
+                          const meta = JSON.parse(currentSection.metadata || "{}");
+                          meta[`stat${num}Value`] = e.target.value;
+                          updateSection(activeTab, { metadata: JSON.stringify(meta) });
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder={`Stat ${num} Value (e.g., 33+)`}
+                      />
+                      <input
+                        type="text"
+                        value={(() => {
+                          try {
+                            return JSON.parse(currentSection.metadata || "{}")[`stat${num}Label`] || "";
+                          } catch { return ""; }
+                        })()}
+                        onChange={(e) => {
+                          const meta = JSON.parse(currentSection.metadata || "{}");
+                          meta[`stat${num}Label`] = e.target.value;
+                          updateSection(activeTab, { metadata: JSON.stringify(meta) });
+                        }}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder={`Stat ${num} Label (e.g., Years Experience)`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Contact Section - Phone, Email, Address */}
+            {activeTab === "contact" && (
+              <div className="space-y-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-blue-800">
+                    These contact details are displayed in the header, footer, and contact page across the website.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Primary Phone Number
+                    </label>
+                    <input
+                      type="text"
+                      value={(() => {
+                        try {
+                          return JSON.parse(currentSection.metadata || "{}").phone || "";
+                        } catch { return ""; }
+                      })()}
+                      onChange={(e) => {
+                        const meta = JSON.parse(currentSection.metadata || "{}");
+                        meta.phone = e.target.value;
+                        updateSection(activeTab, { metadata: JSON.stringify(meta) });
+                      }}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="+233 302 810 990"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Secondary Phone Number (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={(() => {
+                        try {
+                          return JSON.parse(currentSection.metadata || "{}").phone2 || "";
+                        } catch { return ""; }
+                      })()}
+                      onChange={(e) => {
+                        const meta = JSON.parse(currentSection.metadata || "{}");
+                        meta.phone2 = e.target.value;
+                        updateSection(activeTab, { metadata: JSON.stringify(meta) });
+                      }}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="+233 XXX XXX XXX"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={(() => {
+                      try {
+                        return JSON.parse(currentSection.metadata || "{}").email || "";
+                      } catch { return ""; }
+                    })()}
+                    onChange={(e) => {
+                      const meta = JSON.parse(currentSection.metadata || "{}");
+                      meta.email = e.target.value;
+                      updateSection(activeTab, { metadata: JSON.stringify(meta) });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="info@papayegroup.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Head Office Address
+                  </label>
+                  <textarea
+                    value={(() => {
+                      try {
+                        return JSON.parse(currentSection.metadata || "{}").address || "";
+                      } catch { return ""; }
+                    })()}
+                    onChange={(e) => {
+                      const meta = JSON.parse(currentSection.metadata || "{}");
+                      meta.address = e.target.value;
+                      updateSection(activeTab, { metadata: JSON.stringify(meta) });
+                    }}
+                    rows={2}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="Head Office: Plot 53A, Spintex Road, Opp. Stanbic Bank, Accra"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Business Hours
+                  </label>
+                  <input
+                    type="text"
+                    value={(() => {
+                      try {
+                        return JSON.parse(currentSection.metadata || "{}").hours || "";
+                      } catch { return ""; }
+                    })()}
+                    onChange={(e) => {
+                      const meta = JSON.parse(currentSection.metadata || "{}");
+                      meta.hours = e.target.value;
+                      updateSection(activeTab, { metadata: JSON.stringify(meta) });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="7:00 AM - 11:00 PM"
+                  />
+                </div>
               </div>
             )}
           </CardContent>

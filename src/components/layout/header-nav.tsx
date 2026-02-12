@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { CartButton } from "@/components/cart/cart-button";
 import { cn } from "@/lib/utils";
 import { useLogo } from "@/hooks/use-logo";
+import { useContactInfo } from "@/hooks/use-contact-info";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -35,6 +36,10 @@ export function HeaderNav() {
   const showLightNavbar = isScrolled || forceLightNavbar;
   
   const { logoPath, isLoading } = useLogo(showLightNavbar ? 'light' : 'dark');
+  const { contactInfo } = useContactInfo();
+  
+  // Format phone for tel: link
+  const phoneLink = contactInfo.phone.replace(/\s/g, '');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -106,14 +111,14 @@ export function HeaderNav() {
           {/* CTA & User Section */}
           <div className="hidden lg:flex items-center gap-4">
             <a
-              href="tel:+233302810990"
+              href={`tel:${phoneLink}`}
               className={cn(
                 "flex items-center gap-2 font-medium transition-colors",
                 showLightNavbar ? "text-dark" : "text-white"
               )}
             >
               <Phone className="w-4 h-4" />
-              <span>+233 302 810 990</span>
+              <span>{contactInfo.phone}</span>
             </a>
 
             {/* Cart Button */}
@@ -255,11 +260,11 @@ export function HeaderNav() {
               ))}
               <div className="mt-4 space-y-3">
                 <a
-                  href="tel:+233302810990"
+                  href={`tel:${phoneLink}`}
                   className="flex items-center gap-2 text-dark font-medium"
                 >
                   <Phone className="w-4 h-4" />
-                  <span>+233 302 810 990</span>
+                  <span>{contactInfo.phone}</span>
                 </a>
                 <Button className="w-full" size="lg">
                   Order Now
